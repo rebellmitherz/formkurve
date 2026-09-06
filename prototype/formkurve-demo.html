@@ -1,0 +1,784 @@
+<style>
+  :root{
+    --paper:#F4F5F2; --surface:#FFFFFF; --sunk:#ECEEE9;
+    --ink:#14171A; --ink-soft:#586069; --ink-faint:#8C939B;
+    --line:#DCE0DA; --line-soft:#E9ECE6;
+    --accent:#1D4E7C; --accent-ink:#FFFFFF; --accent-wash:#E4EDF5;
+    --gain:#2C7A56; --gain-wash:#E2F0E9;
+    --warn:#A85231; --warn-wash:#F6E7E0;
+    --grid:rgba(29,78,124,.055);
+    --shadow:0 1px 2px rgba(20,23,26,.05), 0 18px 40px -24px rgba(20,23,26,.35);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#101316; --surface:#181C20; --sunk:#1E2328;
+      --ink:#E8EBEC; --ink-soft:#9DA5AD; --ink-faint:#6B747C;
+      --line:#2A3037; --line-soft:#222830;
+      --accent:#6BA3D6; --accent-ink:#0C1922; --accent-wash:#1A2833;
+      --gain:#5CB58A; --gain-wash:#172B22;
+      --warn:#D08055; --warn-wash:#2E1D16;
+      --grid:rgba(107,163,214,.07);
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 22px 48px -26px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#101316; --surface:#181C20; --sunk:#1E2328;
+    --ink:#E8EBEC; --ink-soft:#9DA5AD; --ink-faint:#6B747C;
+    --line:#2A3037; --line-soft:#222830;
+    --accent:#6BA3D6; --accent-ink:#0C1922; --accent-wash:#1A2833;
+    --gain:#5CB58A; --gain-wash:#172B22;
+    --warn:#D08055; --warn-wash:#2E1D16;
+    --grid:rgba(107,163,214,.07);
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 22px 48px -26px rgba(0,0,0,.8);
+  }
+  :root[data-theme="light"]{
+    --paper:#F4F5F2; --surface:#FFFFFF; --sunk:#ECEEE9;
+    --ink:#14171A; --ink-soft:#586069; --ink-faint:#8C939B;
+    --line:#DCE0DA; --line-soft:#E9ECE6;
+    --accent:#1D4E7C; --accent-ink:#FFFFFF; --accent-wash:#E4EDF5;
+    --gain:#2C7A56; --gain-wash:#E2F0E9;
+    --warn:#A85231; --warn-wash:#F6E7E0;
+    --grid:rgba(29,78,124,.055);
+    --shadow:0 1px 2px rgba(20,23,26,.05), 0 18px 40px -24px rgba(20,23,26,.35);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:22px 22px;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  .mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+  h1,h2,h3{margin:0;font-weight:640;letter-spacing:-.02em;text-wrap:balance;line-height:1.2}
+
+  /* ---------- shell ---------- */
+  .wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem 4rem}
+  .masthead{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;justify-content:space-between;margin-bottom:1.25rem}
+  .logo{display:flex;align-items:center;gap:.6rem}
+  .logo svg{width:30px;height:22px;color:var(--accent);flex:none}
+  .logo b{font-size:1.05rem;font-weight:660;letter-spacing:-.02em}
+  .logo span{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);border-left:1px solid var(--line);padding-left:.6rem;margin-left:.15rem}
+
+  .views{display:flex;gap:.3rem;background:var(--sunk);padding:.28rem;border-radius:11px;border:1px solid var(--line);flex-wrap:wrap}
+  .view-tab{
+    font:inherit;font-size:.82rem;font-weight:560;padding:.44rem .8rem;border-radius:8px;border:1px solid transparent;
+    background:transparent;color:var(--ink-soft);cursor:pointer;white-space:nowrap;
+  }
+  .view-tab[aria-selected="true"]{background:var(--surface);color:var(--ink);border-color:var(--line);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .view-tab:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .view-intro{
+    display:flex;gap:.8rem;align-items:flex-start;
+    border-left:2px solid var(--accent);padding:.1rem 0 .1rem .85rem;margin-bottom:1.4rem;max-width:62ch;
+  }
+  .view-intro p{margin:0;font-size:.9rem;color:var(--ink-soft)}
+  .view-intro strong{color:var(--ink);font-weight:600}
+
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ---------- phone ---------- */
+  .stage{display:flex;justify-content:center}
+  .phone{
+    width:100%;max-width:392px;background:var(--surface);border:1px solid var(--line);
+    border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:620px;
+  }
+  .phone-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.6rem .9rem;border-bottom:1px solid var(--line-soft);background:var(--sunk);
+    font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);
+  }
+  .phone-body{padding:1.15rem 1.15rem 1.35rem;display:flex;flex-direction:column;gap:1.1rem;flex:1}
+
+  .step{display:none;flex-direction:column;gap:1.05rem;flex:1;animation:in .32s ease}
+  .step.on{display:flex}
+  @keyframes in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.step{animation:none}}
+
+  .kicker{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650}
+  .lede{color:var(--ink-soft);font-size:.92rem;margin:0}
+  h2.q{font-size:1.28rem}
+  h1.big{font-size:1.55rem}
+
+  .opts{display:flex;flex-direction:column;gap:.5rem}
+  .opt{
+    text-align:left;font:inherit;font-size:.92rem;padding:.78rem .9rem;border-radius:10px;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:border-color .13s,background .13s
+  }
+  .opt:hover{border-color:var(--accent)}
+  .opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-wash);font-weight:600}
+
+  .nav{display:flex;gap:.5rem;margin-top:auto;padding-top:1rem}
+  .btn{font:inherit;font-size:.92rem;font-weight:620;padding:.8rem 1rem;border-radius:10px;border:1px solid transparent;cursor:pointer}
+  .btn-go{background:var(--accent);color:var(--accent-ink);flex:1}
+  .btn-go:disabled{opacity:.35;cursor:not-allowed}
+  .btn-back{background:transparent;color:var(--ink-soft);border-color:var(--line)}
+  .btn-quiet{background:var(--sunk);color:var(--ink-soft);border-color:var(--line);font-size:.8rem;padding:.5rem .75rem;font-weight:560}
+
+  .dots{display:flex;gap:.28rem;align-items:center}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--line)}
+  .dot.done{background:var(--accent)}
+
+  .field{display:flex;flex-direction:column;gap:.35rem}
+  .field label{font-size:.76rem;color:var(--ink-soft)}
+  .field input{font:inherit;font-size:.92rem;padding:.7rem .8rem;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+  .agree{display:flex;gap:.55rem;align-items:flex-start;font-size:.79rem;color:var(--ink-soft)}
+  .agree input{margin-top:.18rem;accent-color:var(--accent)}
+
+  .slider{display:flex;flex-direction:column;gap:.7rem}
+  .slider-num{font-size:2.4rem;font-weight:660;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums}
+  .slider input{width:100%;accent-color:var(--accent)}
+  .slider-ends{display:flex;justify-content:space-between;font-size:.72rem;color:var(--ink-faint)}
+
+  /* ---------- chart ---------- */
+  .chart-card{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+  .chart-head{padding:.7rem .85rem .1rem;display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+  .chart-title{font-size:.78rem;font-weight:620;color:var(--ink)}
+  .chart-sub{font-size:.68rem;color:var(--ink-faint);letter-spacing:.04em;text-transform:uppercase}
+  .chart svg{display:block;width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:.9rem;padding:.35rem .85rem .8rem;font-size:.72rem;color:var(--ink-soft)}
+  .legend i{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-right:.35rem}
+
+  .verdict{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:.85rem .95rem;background:var(--accent-wash)}
+  .verdict .vk{font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);font-weight:660;display:block;margin-bottom:.3rem}
+  .verdict p{margin:0;font-size:.9rem;color:var(--ink)}
+
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+  .fact{border:1px solid var(--line);border-radius:10px;padding:.6rem .55rem;display:flex;flex-direction:column;gap:.12rem;background:var(--surface)}
+  .fact b{font-size:1.15rem;font-weight:660;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .fact span{font-size:.66rem;color:var(--ink-faint);letter-spacing:.03em}
+
+  .slots{display:flex;flex-direction:column;gap:.45rem}
+  .slot{display:flex;justify-content:space-between;align-items:center;font:inherit;font-size:.9rem;padding:.72rem .9rem;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .slot[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-wash)}
+  .slot b{font-weight:600}
+  .slot span{color:var(--ink-faint);font-variant-numeric:tabular-nums}
+
+  .bubble{background:var(--sunk);border:1px solid var(--line-soft);border-radius:12px 12px 12px 3px;padding:.8rem .9rem;font-size:.87rem}
+  .bubble .meta{font-size:.68rem;color:var(--ink-faint);margin-top:.4rem}
+
+  .pack{border:1px solid var(--line);border-radius:11px;padding:.85rem .95rem;display:flex;flex-direction:column;gap:.45rem;background:var(--surface);position:relative}
+  .pack.hero{border-color:var(--accent);background:var(--accent-wash)}
+  .pack-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+  .pack-name{font-weight:620;font-size:.92rem}
+  .pack-price{font-weight:660;font-size:1.1rem;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .pack-desc{font-size:.82rem;color:var(--ink-soft);margin:0}
+  .flag{position:absolute;top:-.5rem;right:.85rem;background:var(--accent);color:var(--accent-ink);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;padding:.18rem .45rem;border-radius:999px;font-weight:640}
+
+  .weeks{display:flex;flex-direction:column;gap:.4rem}
+  .week{display:flex;align-items:center;gap:.7rem;padding:.55rem .7rem;border:1px solid var(--line);border-radius:9px;background:var(--surface);font-size:.85rem}
+  .week .wn{font-size:.68rem;color:var(--ink-faint);width:2.6rem;flex:none;letter-spacing:.04em}
+  .week.now{border-color:var(--accent);background:var(--accent-wash)}
+  .week.done{color:var(--ink-faint)}
+  .week .tick{width:15px;flex:none;color:var(--gain)}
+
+  .checkin{border:1px solid var(--line);border-radius:11px;padding:.85rem .95rem;background:var(--surface);display:flex;flex-direction:column;gap:.6rem}
+  .checkin-row{display:flex;gap:.4rem}
+  .chip{flex:1;font:inherit;font-size:.82rem;padding:.5rem;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-wash);font-weight:600}
+
+  /* ---------- desktop panels ---------- */
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .panel-bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--line-soft);background:var(--sunk)}
+  .panel-bar h3{font-size:.95rem}
+  .panel-bar .when{font-size:.72rem;color:var(--ink-faint);letter-spacing:.04em}
+  .panel-body{padding:1.1rem}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.7rem;margin-bottom:1.1rem}
+  .kpi{border:1px solid var(--line);border-radius:11px;padding:.8rem .85rem;display:flex;flex-direction:column;gap:.2rem}
+  .kpi .kl{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint)}
+  .kpi .kv{font-size:1.6rem;font-weight:660;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .kpi .kd{font-size:.72rem;color:var(--ink-soft)}
+  .kpi.accent{border-color:var(--accent);background:var(--accent-wash)}
+  .kpi.accent .kv{color:var(--accent)}
+  .kpi.flag{border-color:var(--warn);background:var(--warn-wash)}
+  .kpi.flag .kv{color:var(--warn)}
+  .up{color:var(--gain);font-weight:600}
+
+  .cols{display:grid;grid-template-columns:1fr;gap:1.1rem}
+  @media(min-width:820px){.cols.two{grid-template-columns:1.15fr .85fr}}
+
+  .block-title{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem;font-weight:640}
+
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:440px}
+  th{text-align:left;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:640;padding:.6rem .8rem;background:var(--sunk);border-bottom:1px solid var(--line)}
+  td{padding:.62rem .8rem;border-bottom:1px solid var(--line-soft)}
+  tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums;text-align:right}
+  .pill{display:inline-block;font-size:.7rem;padding:.16rem .5rem;border-radius:999px;font-weight:600;white-space:nowrap}
+  .pill.new{background:var(--accent-wash);color:var(--accent)}
+  .pill.ok{background:var(--gain-wash);color:var(--gain)}
+  .pill.risk{background:var(--warn-wash);color:var(--warn)}
+
+  .agenda{display:flex;flex-direction:column;gap:.5rem}
+  .appt{display:flex;gap:.75rem;align-items:center;border:1px solid var(--line);border-radius:10px;padding:.65rem .8rem}
+  .appt .t{font-variant-numeric:tabular-nums;font-weight:640;font-size:.86rem;width:3.2rem;flex:none}
+  .appt .who{font-size:.86rem}
+  .appt .why{font-size:.74rem;color:var(--ink-faint)}
+
+  .note{font-size:.78rem;color:var(--ink-faint);border-top:1px dashed var(--line);padding-top:.85rem;margin-top:1.1rem}
+  .note strong{color:var(--ink-soft)}
+
+  .capacity{border:1px solid var(--warn);background:var(--warn-wash);border-radius:11px;padding:.9rem 1rem;display:flex;flex-direction:column;gap:.3rem}
+  .capacity .cn{font-size:1.5rem;font-weight:660;color:var(--warn);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+  .capacity p{margin:0;font-size:.83rem;color:var(--ink-soft)}
+
+  .barrow{display:flex;align-items:center;gap:.6rem;font-size:.8rem;margin-bottom:.45rem}
+  .barrow .bl{width:4.6rem;flex:none;color:var(--ink-soft);font-size:.76rem}
+  .bartrack{flex:1;height:9px;background:var(--sunk);border-radius:999px;overflow:hidden;border:1px solid var(--line-soft)}
+  .barfill{height:100%;border-radius:999px}
+  .barrow .bv{width:3rem;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;flex:none}
+</style>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="logo">
+      <svg viewBox="0 0 30 22" aria-hidden="true">
+        <path d="M2 19 L10 12 L15 15 L28 3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="28" cy="3" r="2.5" fill="currentColor"/>
+      </svg>
+      <b>Formkurve</b><span>Demo</span>
+    </div>
+    <div class="views" role="tablist">
+      <button class="view-tab" role="tab" aria-selected="true"  onclick="showView('mitglied',this)">1 · Mitglied</button>
+      <button class="view-tab" role="tab" aria-selected="false" onclick="showView('kunde',this)">2 · Teilnehmer</button>
+      <button class="view-tab" role="tab" aria-selected="false" onclick="showView('trainer',this)">3 · Trainer</button>
+      <button class="view-tab" role="tab" aria-selected="false" onclick="showView('betreiber',this)">4 · Betreiber</button>
+    </div>
+  </div>
+
+  <!-- ============ 1 MITGLIED ============ -->
+  <section class="view on" id="view-mitglied">
+    <div class="view-intro"><p><strong>Was das Mitglied sieht.</strong> Scannt den QR im Studio, beantwortet 7 Fragen, sieht seine Kurve — und bucht den Termin. Bis hierher zahlt es nichts.</p></div>
+    <div class="stage">
+      <div class="phone">
+        <div class="phone-bar">
+          <span id="pb-label">Formcheck</span>
+          <span class="dots" id="pb-dots"></span>
+        </div>
+        <div class="phone-body">
+
+          <!-- s0 -->
+          <div class="step on" data-step="0">
+            <div class="kicker">Kostenloser Formcheck</div>
+            <h1 class="big">Trainierst du seit Monaten — und es passiert nichts?</h1>
+            <p class="lede">7 Fragen, 90 Sekunden. Danach siehst du schwarz auf weiß, woran es hängt.</p>
+            <div class="facts">
+              <div class="fact"><b>90&nbsp;Sek.</b><span>DAUER</span></div>
+              <div class="fact"><b>0&nbsp;€</b><span>KOSTEN</span></div>
+              <div class="fact"><b>7</b><span>FRAGEN</span></div>
+            </div>
+            <div class="nav">
+              <button class="btn btn-go" onclick="step(1)">Check starten</button>
+            </div>
+            <button class="btn btn-quiet" onclick="fastForward()">⏩ Für die Vorführung: Antworten überspringen</button>
+          </div>
+
+          <!-- s1 -->
+          <div class="step" data-step="1">
+            <div class="kicker">Frage 1 / 7</div>
+            <h2 class="q">Was ist dein Ziel?</h2>
+            <div class="opts" data-g="ziel">
+              <button class="opt" onclick="pick(this,'ziel','abnehmen',1)">Abnehmen</button>
+              <button class="opt" onclick="pick(this,'ziel','muskel',1)">Muskelaufbau</button>
+              <button class="opt" onclick="pick(this,'ziel','fit',1)">Fitter &amp; belastbarer</button>
+              <button class="opt" onclick="pick(this,'ziel','ruecken',1)">Rücken &amp; Haltung</button>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(0)">Zurück</button><button class="btn btn-go" data-next="1" disabled onclick="step(2)">Weiter</button></div>
+          </div>
+
+          <!-- s2 -->
+          <div class="step" data-step="2">
+            <div class="kicker">Frage 2 / 7</div>
+            <h2 class="q">Wie oft trainierst du pro Woche?</h2>
+            <div class="opts" data-g="freq">
+              <button class="opt" onclick="pick(this,'freq',1,2)">0–1×</button>
+              <button class="opt" onclick="pick(this,'freq',2,2)">2×</button>
+              <button class="opt" onclick="pick(this,'freq',3,2)">3×</button>
+              <button class="opt" onclick="pick(this,'freq',4,2)">4× oder mehr</button>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(1)">Zurück</button><button class="btn btn-go" data-next="2" disabled onclick="step(3)">Weiter</button></div>
+          </div>
+
+          <!-- s3 -->
+          <div class="step" data-step="3">
+            <div class="kicker">Frage 3 / 7</div>
+            <h2 class="q">Seit wann bist du im Studio?</h2>
+            <div class="opts" data-g="seit">
+              <button class="opt" onclick="pick(this,'seit',2,3)">Weniger als 3 Monate</button>
+              <button class="opt" onclick="pick(this,'seit',7,3)">3–12 Monate</button>
+              <button class="opt" onclick="pick(this,'seit',16,3)">Länger als 1 Jahr</button>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(2)">Zurück</button><button class="btn btn-go" data-next="3" disabled onclick="step(4)">Weiter</button></div>
+          </div>
+
+          <!-- s4 -->
+          <div class="step" data-step="4">
+            <div class="kicker">Frage 4 / 7</div>
+            <h2 class="q">Wie zufrieden bist du mit deinem Fortschritt?</h2>
+            <div class="slider">
+              <div><span class="slider-num" id="satNum">5</span><span style="color:var(--ink-faint);font-size:.95rem"> / 10</span></div>
+              <input type="range" min="1" max="10" value="5" id="satRange" oninput="setSat(this.value)">
+              <div class="slider-ends"><span>gar nicht</span><span>sehr</span></div>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(3)">Zurück</button><button class="btn btn-go" onclick="step(5)">Weiter</button></div>
+          </div>
+
+          <!-- s5 -->
+          <div class="step" data-step="5">
+            <div class="kicker">Frage 5 / 7</div>
+            <h2 class="q">Was hält dich am meisten auf?</h2>
+            <div class="opts" data-g="huerde">
+              <button class="opt" onclick="pick(this,'huerde','plan',5)">Ich habe keinen klaren Plan</button>
+              <button class="opt" onclick="pick(this,'huerde','zeit',5)">Mir fehlt die Zeit</button>
+              <button class="opt" onclick="pick(this,'huerde','konstanz',5)">Mir fehlt die Konstanz</button>
+              <button class="opt" onclick="pick(this,'huerde','ernaehrung',5)">Ernährung</button>
+              <button class="opt" onclick="pick(this,'huerde','technik',5)">Ich weiß nicht, ob ich's richtig mache</button>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(4)">Zurück</button><button class="btn btn-go" data-next="5" disabled onclick="step(6)">Weiter</button></div>
+          </div>
+
+          <!-- s6 -->
+          <div class="step" data-step="6">
+            <div class="kicker">Frage 6 / 7</div>
+            <h2 class="q">Bis wann willst du dein Ziel erreichen?</h2>
+            <div class="opts" data-g="frist">
+              <button class="opt" onclick="pick(this,'frist','4w',6)">4 Wochen</button>
+              <button class="opt" onclick="pick(this,'frist','8w',6)">8 Wochen</button>
+              <button class="opt" onclick="pick(this,'frist','3m',6)">3 Monate</button>
+              <button class="opt" onclick="pick(this,'frist','offen',6)">Kein festes Datum</button>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(5)">Zurück</button><button class="btn btn-go" data-next="6" disabled onclick="step(7)">Weiter</button></div>
+          </div>
+
+          <!-- s7 -->
+          <div class="step" data-step="7">
+            <div class="kicker">Frage 7 / 7</div>
+            <h2 class="q">Wohin schicken wir dein Ergebnis?</h2>
+            <div class="field"><label for="fName">Vorname</label><input id="fName" type="text" placeholder="z. B. Julia" oninput="checkContact()"></div>
+            <div class="field"><label for="fKontakt">WhatsApp oder E-Mail</label><input id="fKontakt" type="text" placeholder="0151 234 567 89" oninput="checkContact()"></div>
+            <label class="agree"><input type="checkbox" id="c1" onchange="checkContact()">Ich habe die Datenschutzhinweise gelesen.</label>
+            <label class="agree"><input type="checkbox" id="c2" onchange="checkContact()">Ja, ich möchte per WhatsApp/E-Mail zu Ergebnis und Termin kontaktiert werden.</label>
+            <div class="nav"><button class="btn btn-back" onclick="step(6)">Zurück</button><button class="btn btn-go" id="btnResult" disabled onclick="buildResult()">Meine Kurve ansehen</button></div>
+          </div>
+
+          <!-- s8 ERGEBNIS -->
+          <div class="step" data-step="8">
+            <div class="kicker">Deine Auswertung</div>
+            <h2 class="q" id="resTitle">Das ist deine Formkurve.</h2>
+            <div class="chart-card">
+              <div class="chart-head"><span class="chart-title">Fortschritt über die Zeit</span><span class="chart-sub" id="resSpan">Letzte 7 Monate</span></div>
+              <div class="chart" id="resChart"></div>
+              <div class="legend">
+                <span><i style="border-color:var(--ink-faint)"></i>Dein Verlauf</span>
+                <span><i style="border-color:var(--accent);border-top-style:dashed"></i>Mit Struktur möglich</span>
+              </div>
+            </div>
+            <div class="verdict"><span class="vk">Wahrscheinlicher Engpass</span><p id="resText">—</p></div>
+            <p class="lede">Klären wir in 20 Minuten — mit Messung, kostenlos, hier im Studio.</p>
+            <div class="nav"><button class="btn btn-go" onclick="step(9)">Termin aussuchen</button></div>
+          </div>
+
+          <!-- s9 TERMIN -->
+          <div class="step" data-step="9">
+            <div class="kicker">Analysetermin</div>
+            <h2 class="q">Wann passt es dir?</h2>
+            <p class="lede">20 Minuten mit deinem Trainer. Körpermessung inklusive.</p>
+            <div class="slots">
+              <button class="slot" onclick="pickSlot(this,'Do 18:30')"><b>Donnerstag</b><span>18:30 Uhr</span></button>
+              <button class="slot" onclick="pickSlot(this,'Fr 17:00')"><b>Freitag</b><span>17:00 Uhr</span></button>
+              <button class="slot" onclick="pickSlot(this,'Sa 10:00')"><b>Samstag</b><span>10:00 Uhr</span></button>
+            </div>
+            <div class="nav"><button class="btn btn-back" onclick="step(8)">Zurück</button><button class="btn btn-go" id="btnSlot" disabled onclick="step(10)">Termin bestätigen</button></div>
+          </div>
+
+          <!-- s10 BESTÄTIGT -->
+          <div class="step" data-step="10">
+            <div class="kicker">Gebucht</div>
+            <h2 class="q">Bis <span id="cSlot">bald</span>.</h2>
+            <div class="bubble">
+              Hi <span id="cName"></span>, hier ist Marco aus dem Studio. Deine Kurve ist da — bei dir sieht's nach <span id="cGap">—</span> aus. Ich hab <span id="cSlot2"></span> für dich reserviert, Messung inklusive. Bis dann!
+              <div class="meta">WhatsApp · gerade eben · Demo</div>
+            </div>
+            <p class="lede">Erinnerung kommt automatisch 24 h und 2 h vorher.</p>
+            <div class="nav"><button class="btn btn-go" onclick="step(11)">Weiter: was im Termin passiert →</button></div>
+          </div>
+
+          <!-- s11 ANGEBOT -->
+          <div class="step" data-step="11">
+            <div class="kicker">Im Termin, nach der Messung</div>
+            <h2 class="q">Drei Wege zu deinem Ziel</h2>
+            <div class="opts">
+              <div class="pack"><div class="pack-top"><span class="pack-name">Kickstart · 4 Wochen</span><span class="pack-price">199 €</span></div><p class="pack-desc">Plan + 2 Gruppeneinheiten + wöchentlicher Check-in.</p></div>
+              <div class="pack hero"><span class="flag">Empfohlen</span><div class="pack-top"><span class="pack-name">Transformation · 8 Wochen</span><span class="pack-price">399 €</span></div><p class="pack-desc">Feste Kleingruppe (max. 6), Messung in Woche 0 / 4 / 8, Ernährungsrahmen, wöchentlicher Check-in.</p></div>
+              <div class="pack"><div class="pack-top"><span class="pack-name">Plus · 12 Wochen</span><span class="pack-price">699 €</span></div><p class="pack-desc">Wie oben + 3 Einzelstunden Personal Training.</p></div>
+            </div>
+            <div class="verdict" style="border-left-color:var(--gain);background:var(--gain-wash)">
+              <span class="vk" style="color:var(--gain)">Und dann?</span>
+              <p>Nach dem Kauf geht's genau hier weiter — Tab <strong>2 · Teilnehmer</strong> zeigt, was Julia die nächsten 8 Wochen sieht.</p>
+            </div>
+            <div class="nav"><button class="btn btn-go" onclick="showViewByName('kunde')">Zur Teilnehmer-Ansicht →</button></div>
+            <button class="btn btn-quiet" onclick="step(0)">↻ Demo von vorn</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 TEILNEHMER ============ -->
+  <section class="view" id="view-kunde">
+    <div class="view-intro"><p><strong>Was der zahlende Kunde bekommt.</strong> Das ist das Produkt hinter den 399 € — nicht der Termin, sondern acht Wochen mit sichtbarem Verlauf. Julia ist in Woche 3.</p></div>
+    <div class="stage">
+      <div class="phone">
+        <div class="phone-bar"><span>Mein Programm</span><span>Woche 3 / 8</span></div>
+        <div class="phone-body">
+          <div class="kicker">Transformation · Kohorte Di 18:30</div>
+          <h2 class="q">Läuft, Julia.</h2>
+
+          <div class="chart-card">
+            <div class="chart-head"><span class="chart-title">Deine Formkurve</span><span class="chart-sub">Woche 0 – 8</span></div>
+            <div class="chart" id="kundeChart"></div>
+            <div class="legend">
+              <span><i style="border-color:var(--gain)"></i>Gemessen</span>
+              <span><i style="border-color:var(--accent);border-top-style:dashed"></i>Ziel</span>
+            </div>
+          </div>
+
+          <div class="facts">
+            <div class="fact"><b>−2,4 kg</b><span>GEWICHT</span></div>
+            <div class="fact"><b>+1,1 kg</b><span>MUSKEL</span></div>
+            <div class="fact"><b>11 / 12</b><span>EINHEITEN</span></div>
+          </div>
+
+          <div>
+            <p class="block-title">Dein Plan</p>
+            <div class="weeks">
+              <div class="week done"><span class="wn mono">W 1</span><svg class="tick" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Grundlagen + Messung</span></div>
+              <div class="week done"><span class="wn mono">W 2</span><svg class="tick" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Technik Unterkörper</span></div>
+              <div class="week now"><span class="wn mono">W 3</span><span style="width:15px;flex:none"></span><span><strong>Intensität rauf</strong> · Di 18:30</span></div>
+              <div class="week"><span class="wn mono">W 4</span><span style="width:15px;flex:none"></span><span>Zwischenmessung</span></div>
+              <div class="week"><span class="wn mono">W 5–8</span><span style="width:15px;flex:none"></span><span>Aufbauphase + Abschluss</span></div>
+            </div>
+          </div>
+
+          <div class="checkin">
+            <p class="block-title" style="margin:0">Check-in dieser Woche</p>
+            <p class="lede" style="font-size:.86rem">Wie ist es letzte Woche gelaufen?</p>
+            <div class="checkin-row">
+              <button class="chip" onclick="chip(this)">Gut</button>
+              <button class="chip" onclick="chip(this)">Ging so</button>
+              <button class="chip" onclick="chip(this)">Schwierig</button>
+            </div>
+            <p class="lede" style="font-size:.78rem;color:var(--ink-faint)">Marco sieht deine Antwort und meldet sich, wenn nötig.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3 TRAINER ============ -->
+  <section class="view" id="view-trainer">
+    <div class="view-intro"><p><strong>Was der Trainer sieht.</strong> Sein ganzer Tag auf einem Bildschirm: wer neu reinkam, wen er heute sieht, wer abzuspringen droht — und was er diesen Monat verdient hat.</p></div>
+    <div class="panel">
+      <div class="panel-bar"><h3>Marco · Trainer-Übersicht</h3><span class="when mono">Mittwoch, 5. August</span></div>
+      <div class="panel-body">
+
+        <div class="kpis">
+          <div class="kpi"><span class="kl">Neue Leads</span><span class="kv">5</span><span class="kd">diese Woche</span></div>
+          <div class="kpi"><span class="kl">Termine erschienen</span><span class="kv">11 / 16</span><span class="kd">69 % · Ziel 70 %</span></div>
+          <div class="kpi accent"><span class="kl">Verkäufe im August</span><span class="kv">4</span><span class="kd">Abschlussquote 36 %</span></div>
+          <div class="kpi accent"><span class="kl">Dein Umsatz</span><span class="kv">1.596 €</span><span class="kd"><span class="up">+412 €</span> ggü. Juli</span></div>
+        </div>
+
+        <div class="cols two">
+          <div>
+            <p class="block-title">Neue Formchecks — noch nicht kontaktiert</p>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Mitglied</th><th>Ziel</th><th>Engpass</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Julia K.</td><td>Abnehmen</td><td>Struktur</td><td><span class="pill new">vor 4 Min.</span></td></tr>
+                  <tr><td>Tobias R.</td><td>Muskelaufbau</td><td>Technik</td><td><span class="pill new">vor 2 Std.</span></td></tr>
+                  <tr><td>Anne M.</td><td>Rücken</td><td>Konstanz</td><td><span class="pill new">gestern</span></td></tr>
+                  <tr><td>Deniz A.</td><td>Abnehmen</td><td>Ernährung</td><td><span class="pill ok">Termin Do</span></td></tr>
+                  <tr><td>Sven B.</td><td>Fitter werden</td><td>Struktur</td><td><span class="pill ok">Termin Sa</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="block-title" style="margin-top:1.1rem">Aktive Kohorten</p>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Gruppe</th><th>Woche</th><th class="num">Plätze</th><th>Nächstes Training</th></tr></thead>
+                <tbody>
+                  <tr><td>Di 18:30</td><td>3 / 8</td><td class="num">6 / 6</td><td>Di, 18:30</td></tr>
+                  <tr><td>Do 19:00</td><td>1 / 8</td><td class="num">4 / 6</td><td>Do, 19:00</td></tr>
+                  <tr><td>Sa 09:00 <span class="pill new">Start 17.8.</span></td><td>—</td><td class="num">2 / 6</td><td>Sa, 09:00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <p class="block-title">Heute</p>
+            <div class="agenda">
+              <div class="appt"><span class="t mono">17:00</span><span><span class="who">Tobias R.</span><br><span class="why">Analysetermin · Erstgespräch</span></span></div>
+              <div class="appt"><span class="t mono">18:30</span><span><span class="who">Kohorte Di</span><br><span class="why">6 Teilnehmer · Woche 3</span></span></div>
+              <div class="appt"><span class="t mono">19:45</span><span><span class="who">Anne M.</span><br><span class="why">Analysetermin · Erstgespräch</span></span></div>
+            </div>
+
+            <p class="block-title" style="margin-top:1.1rem">Braucht Aufmerksamkeit</p>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Teilnehmer</th><th>Signal</th></tr></thead>
+                <tbody>
+                  <tr><td>Kevin S.</td><td><span class="pill risk">2 Wochen nicht da</span></td></tr>
+                  <tr><td>Martina L.</td><td><span class="pill risk">Check-in: „schwierig"</span></td></tr>
+                  <tr><td>Sven B.</td><td><span class="pill ok">Programm endet in 1 Wo.</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="note"><strong>Automatisch:</strong> Wer 14 Tage nicht auftaucht oder „schwierig" antwortet, landet hier — bevor er kündigt. Sven bekommt nächste Woche das Anschlussangebot (59 €/Monat).</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4 BETREIBER ============ -->
+  <section class="view" id="view-betreiber">
+    <div class="view-intro"><p><strong>Was der Studiobetreiber bekommt.</strong> Eine Seite pro Monat, unaufgefordert. Die letzte Zahl ist der eigentliche Verkaufsmechanismus.</p></div>
+    <div class="panel">
+      <div class="panel-bar"><h3>Standortreport · FitPoint Hauptstraße</h3><span class="when mono">August 2026</span></div>
+      <div class="panel-body">
+
+        <div class="kpis">
+          <div class="kpi"><span class="kl">Formchecks</span><span class="kv">45</span><span class="kd">von 60 gestartet</span></div>
+          <div class="kpi"><span class="kl">Termine</span><span class="kv">16</span><span class="kd">11 erschienen · 69 %</span></div>
+          <div class="kpi"><span class="kl">Zusatzumsatz</span><span class="kv">1.596 €</span><span class="kd">1,60 € je aktivem Mitglied</span></div>
+          <div class="kpi accent"><span class="kl">Ihr Anteil (10 %)</span><span class="kv">160 €</span><span class="kd">ohne Investition</span></div>
+        </div>
+
+        <div class="cols two">
+          <div>
+            <p class="block-title">Trainingsfrequenz der Teilnehmer</p>
+            <div class="chart-card" style="padding:.9rem .95rem">
+              <div class="barrow"><span class="bl">Vorher</span><span class="bartrack"><span class="barfill" style="width:44%;background:var(--ink-faint)"></span></span><span class="bv mono">1,6×</span></div>
+              <div class="barrow"><span class="bl">Im Programm</span><span class="bartrack"><span class="barfill" style="width:81%;background:var(--gain)"></span></span><span class="bv mono">2,9×</span></div>
+              <p class="lede" style="font-size:.78rem;color:var(--ink-faint);margin-top:.5rem">Besuche pro Woche, n = 11 Teilnehmer. Kleine Stichprobe — Beobachtung, kein statistischer Nachweis.</p>
+            </div>
+
+            <p class="block-title" style="margin-top:1.1rem">Bindung</p>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Kennzahl</th><th class="num">Wert</th></tr></thead>
+                <tbody>
+                  <tr><td>Programm-Abbrüche</td><td class="num">1 von 11</td></tr>
+                  <tr><td>Kündigungen unter Teilnehmern</td><td class="num">0</td></tr>
+                  <tr><td>Anschluss-Abo nach Programm</td><td class="num">45 %</td></tr>
+                  <tr><td>Wiederkehrender Umsatz</td><td class="num">177 €/Mon.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <p class="block-title">Trainer-Auslastung</p>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Kennzahl</th><th class="num">Wert</th></tr></thead>
+                <tbody>
+                  <tr><td>Gebundene Trainerstunden</td><td class="num">14 h</td></tr>
+                  <tr><td>Umsatz je Trainerstunde</td><td class="num">114 €</td></tr>
+                  <tr><td>Freie Kapazität</td><td class="num">0</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="block-title" style="margin-top:1.1rem">Ausblick</p>
+            <div class="capacity">
+              <span class="cn">5 Mitglieder</span>
+              <p>wollten buchen und konnten nicht bedient werden — Marco ist ausgelastet. Entgangener Umsatz: <strong>rund 1.400 €</strong>.</p>
+              <p style="margin-top:.35rem"><strong>Ein zweiter Trainer würde diese Nachfrage abdecken.</strong></p>
+            </div>
+
+            <p class="note"><strong>So funktioniert der Betreiber-Effekt:</strong> Der Report geht jeden Monat automatisch raus. Die Zeile „nicht bedienbar" erzeugt genau einen Gedanken — da liegt Geld auf der Straße. Das ist der Moment, in dem der Betreiber nach Standort&nbsp;2 fragt.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var A = {ziel:null,freq:2,seit:7,sat:5,huerde:null,frist:null,name:'',kontakt:''};
+  var cur = 0, slot = null;
+
+  var GAP = {
+    plan:{k:'fehlender Struktur',t:'Struktur. Du trainierst, aber ohne roten Faden — jede Einheit ist eher Zufallsprogramm als Baustein. Mit Abstand der häufigste Grund, warum nach Monaten nichts passiert.'},
+    zeit:{k:'zu wenig Frequenz',t:'Frequenz. Nicht die Intensität fehlt, sondern die Regelmäßigkeit. Zwei feste Termine pro Woche schlagen fünf spontane.'},
+    konstanz:{k:'fehlender Konstanz',t:'Verbindlichkeit. Ohne festen Termin und jemanden, der nachfragt, bricht Motivation nach drei bis vier Wochen ein — das ist normal, kein Charakterfehler.'},
+    ernaehrung:{k:'der Ernährung',t:'Ernährungsrahmen. Das Training passt, aber ohne einfache Alltagsregeln bleibt der Rest Zufall — und der Rest entscheidet.'},
+    technik:{k:'Unsicherheit bei der Ausführung',t:'Rückmeldung. Du trainierst im Blindflug: ohne Messung und Korrektur weißt du nicht, ob der Reiz überhaupt ankommt.'}
+  };
+
+  function $(id){return document.getElementById(id)}
+  function q(sel,root){return (root||document).querySelector(sel)}
+  function qa(sel,root){return Array.prototype.slice.call((root||document).querySelectorAll(sel))}
+
+  window.showView = function(name, el){
+    qa('.view').forEach(function(v){v.classList.remove('on')});
+    $('view-'+name).classList.add('on');
+    qa('.view-tab').forEach(function(t){t.setAttribute('aria-selected','false')});
+    if(el) el.setAttribute('aria-selected','true');
+    window.scrollTo(0,0);
+  };
+  window.showViewByName = function(name){
+    var idx = {mitglied:0,kunde:1,trainer:2,betreiber:3}[name];
+    showView(name, qa('.view-tab')[idx]);
+  };
+
+  window.step = function(n){
+    qa('.step').forEach(function(s){s.classList.remove('on')});
+    q('.step[data-step="'+n+'"]').classList.add('on');
+    cur = n;
+    var labels=['Formcheck','Ziel','Frequenz','Dabei seit','Zufriedenheit','Hürde','Zeitrahmen','Kontakt','Auswertung','Termin','Bestätigt','Angebot'];
+    $('pb-label').textContent = labels[n];
+    var d='';
+    for(var i=0;i<12;i++){ d += '<span class="dot'+(i<=n?' done':'')+'"></span>'; }
+    $('pb-dots').innerHTML = d;
+  };
+
+  window.pick = function(el, group, val, stepIdx){
+    A[group] = val;
+    qa('.opt', el.parentElement).forEach(function(b){b.setAttribute('aria-pressed','false')});
+    el.setAttribute('aria-pressed','true');
+    var nx = q('.btn-go[data-next="'+stepIdx+'"]');
+    if(nx) nx.disabled = false;
+  };
+
+  window.setSat = function(v){ A.sat = +v; $('satNum').textContent = v; };
+
+  window.checkContact = function(){
+    A.name = $('fName').value.trim();
+    A.kontakt = $('fKontakt').value.trim();
+    $('btnResult').disabled = !(A.name && A.kontakt && $('c1').checked && $('c2').checked);
+  };
+
+  window.pickSlot = function(el, label){
+    slot = label;
+    qa('.slot', el.parentElement).forEach(function(b){b.setAttribute('aria-pressed','false')});
+    el.setAttribute('aria-pressed','true');
+    $('btnSlot').disabled = false;
+  };
+
+  window.chip = function(el){
+    qa('.chip', el.parentElement).forEach(function(b){b.setAttribute('aria-pressed','false')});
+    el.setAttribute('aria-pressed','true');
+  };
+
+  window.fastForward = function(){
+    A.ziel='abnehmen'; A.freq=2; A.seit=7; A.sat=3; A.huerde='plan'; A.frist='8w';
+    A.name='Julia'; A.kontakt='0151 234 567 89';
+    $('fName').value='Julia'; $('fKontakt').value='0151 234 567 89';
+    $('c1').checked=true; $('c2').checked=true; $('satRange').value=3; $('satNum').textContent='3';
+    buildResult();
+  };
+
+  // ---- charts ----
+  function line(pts){
+    return pts.map(function(p,i){ return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1); }).join(' ');
+  }
+  function frame(w,h,pad){
+    var g='';
+    for(var i=0;i<=4;i++){
+      var y = pad + (h-2*pad)*i/4;
+      g += '<line x1="'+pad+'" y1="'+y.toFixed(1)+'" x2="'+(w-pad)+'" y2="'+y.toFixed(1)+'" stroke="var(--line-soft)" stroke-width="1"/>';
+    }
+    return g;
+  }
+
+  function resultChart(){
+    var w=340,h=170,pad=18;
+    var months = Math.max(3, A.seit);
+    var flatEnd = 0.10 + (A.sat-1)/9*0.22;
+    var past=[], n=8;
+    for(var i=0;i<=n;i++){
+      var t=i/n;
+      var wobble = Math.sin(i*1.7)*0.022;
+      var v = 0.06 + flatEnd*t + wobble;
+      past.push([pad + (w-2*pad)*t*0.62, h-pad - (h-2*pad)*v]);
+    }
+    var startX = past[past.length-1][0], startY = past[past.length-1][1];
+    var proj=[];
+    for(var j=0;j<=8;j++){
+      var s=j/8;
+      var ease = 1-Math.pow(1-s,2.1);
+      var v2 = flatEnd + 0.06 + ease*(0.80-flatEnd);
+      proj.push([startX + (w-pad-startX)*s, h-pad-(h-2*pad)*v2]);
+    }
+    var svg = '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Vergleich deines bisherigen Verlaufs mit dem möglichen Verlauf">'
+      + frame(w,h,pad)
+      + '<path d="'+line(proj)+'" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="5 4" stroke-linecap="round"/>'
+      + '<path d="'+line(past)+'" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round"/>'
+      + '<circle cx="'+startX.toFixed(1)+'" cy="'+startY.toFixed(1)+'" r="4" fill="var(--ink-faint)"/>'
+      + '<circle cx="'+proj[proj.length-1][0].toFixed(1)+'" cy="'+proj[proj.length-1][1].toFixed(1)+'" r="4.5" fill="var(--accent)"/>'
+      + '<text x="'+(startX-6).toFixed(1)+'" y="'+(startY-10).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--ink-faint)">heute</text>'
+      + '<text x="'+(w-pad).toFixed(1)+'" y="'+(proj[proj.length-1][1]-11).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--accent)" font-weight="600">in 8 Wochen</text>'
+      + '</svg>';
+    $('resChart').innerHTML = svg;
+    $('resSpan').textContent = 'Letzte ' + months + ' Monate';
+  }
+
+  function kundeChart(){
+    var w=340,h=170,pad=18;
+    var measured=[[0,.10],[2,.28],[4,.44]];
+    var target=[[0,.10],[2,.26],[4,.45],[6,.63],[8,.80]];
+    function mapPt(p){ return [pad+(w-2*pad)*(p[0]/8), h-pad-(h-2*pad)*p[1]]; }
+    var mp=measured.map(mapPt), tp=target.map(mapPt);
+    var dots = mp.map(function(p){ return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="var(--gain)"/>'; }).join('');
+    var svg = '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Gemessener Fortschritt bis Woche 4 gegenüber dem Zielverlauf bis Woche 8">'
+      + frame(w,h,pad)
+      + '<path d="'+line(tp)+'" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="5 4" stroke-linecap="round"/>'
+      + '<path d="'+line(mp)+'" fill="none" stroke="var(--gain)" stroke-width="2.8" stroke-linecap="round"/>'
+      + dots
+      + '<text x="'+mp[2][0].toFixed(1)+'" y="'+(mp[2][1]-11).toFixed(1)+'" text-anchor="middle" font-size="10" fill="var(--gain)" font-weight="600">jetzt</text>'
+      + '<text x="'+pad+'" y="'+(h-4)+'" font-size="9" fill="var(--ink-faint)">W0</text>'
+      + '<text x="'+(w-pad)+'" y="'+(h-4)+'" text-anchor="end" font-size="9" fill="var(--ink-faint)">W8</text>'
+      + '</svg>';
+    $('kundeChart').innerHTML = svg;
+  }
+
+  window.buildResult = function(){
+    var g = GAP[A.huerde] || GAP.plan;
+    $('resTitle').textContent = A.name ? ('Das ist deine Formkurve, '+A.name+'.') : 'Das ist deine Formkurve.';
+    $('resText').textContent = g.t;
+    $('cName').textContent = A.name || '';
+    $('cGap').textContent = g.k;
+    resultChart();
+    step(8);
+  };
+
+  // wire confirm labels when entering step 10
+  var origStep = window.step;
+  window.step = function(n){
+    if(n===10){ $('cSlot').textContent = slot || 'bald'; $('cSlot2').textContent = slot || 'deinen Termin'; }
+    origStep(n);
+  };
+
+  step(0);
+  kundeChart();
+})();
+</script>

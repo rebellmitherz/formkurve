@@ -1,0 +1,678 @@
+<style>
+  :root{
+    --bg:#F5F4F0; --surf:#FFFFFF; --sunk:#EDEBE4; --deep:#E3E0D6;
+    --ink:#121417; --ink-2:#4B5259; --ink-3:#878E95;
+    --edge:#E0DDD3; --edge-2:#CFCBBE;
+    --brand:#0A5B54; --brand-2:#0E7A70; --brand-wash:#E2EFED;
+    --gain:#0C7A46; --gain-wash:#E1F1E8;
+    --heat:#B44A17; --heat-wash:#FAEBE1;
+    --dosBg:#101418; --dosSurf:#171C22; --dosEdge:#262D35;
+    --dosInk:#F3F1E9; --dosInk2:#A8B0B8; --dosInk3:#727B84;
+    --dosGold:#D9A73C; --dosGain:#46C285;
+    --sh:0 1px 2px rgba(18,20,23,.05),0 12px 32px -16px rgba(18,20,23,.3);
+    --shBig:0 2px 6px rgba(18,20,23,.08),0 28px 60px -26px rgba(18,20,23,.5);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0C0F12; --surf:#141A1F; --sunk:#1A2128; --deep:#212932;
+      --ink:#EDEFF0; --ink-2:#A3ACB4; --ink-3:#6F7880;
+      --edge:#232B33; --edge-2:#2F3841;
+      --brand:#5FC7BB; --brand-2:#7BD8CD; --brand-wash:#12292A;
+      --gain:#48C285; --gain-wash:#0F2A1E;
+      --heat:#E08B52; --heat-wash:#2C1A11;
+      --sh:0 1px 2px rgba(0,0,0,.5),0 12px 32px -16px rgba(0,0,0,.75);
+      --shBig:0 2px 6px rgba(0,0,0,.6),0 28px 60px -26px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C0F12; --surf:#141A1F; --sunk:#1A2128; --deep:#212932;
+    --ink:#EDEFF0; --ink-2:#A3ACB4; --ink-3:#6F7880;
+    --edge:#232B33; --edge-2:#2F3841;
+    --brand:#5FC7BB; --brand-2:#7BD8CD; --brand-wash:#12292A;
+    --gain:#48C285; --gain-wash:#0F2A1E;
+    --heat:#E08B52; --heat-wash:#2C1A11;
+    --sh:0 1px 2px rgba(0,0,0,.5),0 12px 32px -16px rgba(0,0,0,.75);
+    --shBig:0 2px 6px rgba(0,0,0,.6),0 28px 60px -26px rgba(0,0,0,.9);
+  }
+  :root[data-theme="light"]{
+    --bg:#F5F4F0; --surf:#FFFFFF; --sunk:#EDEBE4; --deep:#E3E0D6;
+    --ink:#121417; --ink-2:#4B5259; --ink-3:#878E95;
+    --edge:#E0DDD3; --edge-2:#CFCBBE;
+    --brand:#0A5B54; --brand-2:#0E7A70; --brand-wash:#E2EFED;
+    --gain:#0C7A46; --gain-wash:#E1F1E8;
+    --heat:#B44A17; --heat-wash:#FAEBE1;
+    --sh:0 1px 2px rgba(18,20,23,.05),0 12px 32px -16px rgba(18,20,23,.3);
+    --shBig:0 2px 6px rgba(18,20,23,.08),0 28px 60px -26px rgba(18,20,23,.5);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg)}
+  body{color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;overflow-x:hidden}
+  .mo{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.032em;line-height:1.12;text-wrap:balance}
+  p{margin:0} button{font:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:5px}
+
+  .app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
+  @media(min-width:820px){.app{margin:1.5rem auto;min-height:auto;border-radius:22px;overflow:hidden;box-shadow:var(--shBig);border:1px solid var(--edge)}}
+
+  /* ---------- chrome ---------- */
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:.8rem 1.05rem;background:var(--surf);border-bottom:1px solid var(--edge);flex:none}
+  .bmark{display:flex;align-items:center;gap:.55rem;min-width:0}
+  .bmark svg{width:26px;height:19px;color:var(--brand);flex:none}
+  .bmark .b1{font-size:.9rem;font-weight:700;letter-spacing:-.022em;line-height:1.1}
+  .bmark .b2{font-size:.68rem;color:var(--ink-3);line-height:1.2}
+  .month{text-align:right;flex:none}
+  .month .ml{font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+  .month .mv{font-size:1rem;font-weight:740;letter-spacing:-.03em;color:var(--gain)}
+
+  .body{flex:1;overflow-y:auto}
+  .view{display:none;flex-direction:column}
+  .view.on{display:flex}
+  .pad{padding:1.35rem 1.05rem 2rem}
+
+  .kick{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--brand);font-weight:700}
+  h1.big{font-size:1.62rem;margin:.55rem 0 .5rem}
+  .lede{font-size:.93rem;color:var(--ink-2);max-width:42ch}
+
+  /* ---------- intake ---------- */
+  .fset{margin-top:1.5rem}
+  .flab{font-size:.72rem;font-weight:640;color:var(--ink-2);margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:baseline;gap:.6rem}
+  .flab em{font-style:normal;color:var(--ink-3);font-weight:500;font-size:.7rem}
+  .tin{width:100%;padding:.85rem .9rem;border-radius:11px;border:1px solid var(--edge);background:var(--surf);color:var(--ink);font-size:1rem;font-family:inherit}
+  .tin::placeholder{color:var(--ink-3)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
+  @media(min-width:400px){.grid4{grid-template-columns:repeat(4,1fr)}}
+  .pick{
+    padding:.8rem .5rem;border-radius:11px;border:1px solid var(--edge);background:var(--surf);
+    color:var(--ink);font-size:.87rem;font-weight:560;text-align:center;transition:.13s;line-height:1.3;
+  }
+  .pick:hover{border-color:var(--brand)}
+  .pick[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-wash);color:var(--brand);font-weight:680;box-shadow:inset 0 0 0 1px var(--brand)}
+  .pick .pk-s{display:block;font-size:.68rem;color:var(--ink-3);font-weight:500;margin-top:.12rem}
+  .pick[aria-pressed="true"] .pk-s{color:var(--brand)}
+
+  .stepper{display:flex;align-items:center;gap:.55rem;background:var(--surf);border:1px solid var(--edge);border-radius:11px;padding:.4rem .5rem}
+  .stepper button{width:38px;height:38px;border-radius:9px;border:1px solid var(--edge);background:var(--sunk);color:var(--ink);font-size:1.15rem;font-weight:600;display:grid;place-items:center;flex:none}
+  .stepper button:active{background:var(--deep)}
+  .stepper .sv{flex:1;text-align:center;font-size:1.15rem;font-weight:700;letter-spacing:-.03em}
+  .stepper .su{font-size:.78rem;color:var(--ink-3);font-weight:500}
+
+  .cta{
+    width:100%;padding:1.05rem 1rem;border-radius:13px;border:none;background:var(--brand);color:#fff;
+    font-size:1rem;font-weight:700;letter-spacing:-.015em;display:flex;align-items:center;justify-content:center;gap:.5rem;
+  }
+  .cta:disabled{opacity:.35}
+  .cta.gain{background:var(--gain)}
+  .cta.ghost{background:var(--sunk);color:var(--ink);border:1px solid var(--edge)}
+  .cta-wrap{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 62%,transparent);padding:1rem 1.05rem calc(1rem + env(safe-area-inset-bottom,0px));margin-top:.5rem}
+
+  /* ---------- computing ---------- */
+  .compute{min-height:64vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6rem;padding:2rem 1.5rem}
+  .spin{width:54px;height:54px}
+  .spin circle{fill:none;stroke-width:3}
+  .spin .tr{stroke:var(--edge-2)}
+  .spin .ar{stroke:var(--brand);stroke-linecap:round;stroke-dasharray:120;stroke-dashoffset:90;transform-origin:center;animation:rot 1s linear infinite}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.spin .ar{animation:none}}
+  .clines{display:flex;flex-direction:column;gap:.55rem;width:100%;max-width:270px}
+  .cline{display:flex;align-items:center;gap:.6rem;font-size:.86rem;color:var(--ink-3);opacity:.3;transition:opacity .3s,color .3s}
+  .cline.hit{opacity:1;color:var(--ink-2)}
+  .cline .ck{width:16px;height:16px;flex:none;color:var(--gain);opacity:0;transition:opacity .3s}
+  .cline.hit .ck{opacity:1}
+
+  /* ---------- DOSSIER ---------- */
+  .dos{background:var(--dosBg);color:var(--dosInk);border-radius:0;overflow:hidden;animation:slide .5s cubic-bezier(.16,1,.3,1)}
+  @keyframes slide{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.dos{animation:none}}
+  .dos-pad{padding:1.5rem 1.2rem}
+  .dos-cover{border-bottom:1px solid var(--dosEdge)}
+  .dos-tag{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dosGold);font-weight:700}
+  .dos-name{font-size:2rem;font-weight:760;letter-spacing:-.04em;margin:.6rem 0 .3rem;color:var(--dosInk);line-height:1.02}
+  .dos-prog{font-size:.94rem;color:var(--dosInk2)}
+  .dos-meta{display:flex;gap:1.3rem;margin-top:1.3rem;padding-top:1.1rem;border-top:1px solid var(--dosEdge)}
+  .dos-meta div{display:flex;flex-direction:column;gap:.1rem}
+  .dos-meta .k{font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;color:var(--dosInk3)}
+  .dos-meta .v{font-size:.86rem;font-weight:620;color:var(--dosInk)}
+
+  .dos-sec{border-bottom:1px solid var(--dosEdge)}
+  .dos-h{font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dosInk3);font-weight:700;margin-bottom:1rem}
+
+  .proj{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+  .proj .pcol{display:flex;flex-direction:column;gap:.15rem}
+  .proj .pk{font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--dosInk3)}
+  .proj .pv{font-size:1.75rem;font-weight:750;letter-spacing:-.04em;line-height:1}
+  .proj .pv.t{color:var(--dosGain)}
+  .proj .parrow{flex:1;height:1px;background:var(--dosEdge);margin-bottom:.6rem;position:relative}
+  .proj .parrow::after{content:"";position:absolute;right:0;top:-3px;width:7px;height:7px;border-top:1px solid var(--dosEdge);border-right:1px solid var(--dosEdge);transform:rotate(45deg)}
+  .delta{display:inline-block;font-size:.78rem;font-weight:680;color:var(--dosGain);background:rgba(70,194,133,.13);padding:.2rem .5rem;border-radius:6px}
+
+  .curve{width:100%;height:auto;display:block;margin:.4rem 0 .7rem}
+  .cnote{font-size:.74rem;color:var(--dosInk3);line-height:1.55}
+
+  .nutri{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+  .nu{background:var(--dosSurf);border:1px solid var(--dosEdge);border-radius:11px;padding:.8rem .7rem}
+  .nu .k{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dosInk3);margin-bottom:.25rem}
+  .nu .v{font-size:1.3rem;font-weight:740;letter-spacing:-.035em;line-height:1}
+  .nu .u{font-size:.68rem;color:var(--dosInk3);margin-top:.15rem}
+  .macro{display:flex;height:7px;border-radius:4px;overflow:hidden;margin-top:.9rem;background:var(--dosSurf)}
+  .macro i{display:block;height:100%}
+  .mlg{display:flex;gap:.9rem;margin-top:.55rem;font-size:.7rem;color:var(--dosInk3);flex-wrap:wrap}
+  .mlg span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:.32rem;vertical-align:middle}
+
+  .phases{display:flex;gap:.3rem;margin-bottom:1rem}
+  .ph{flex:1;text-align:center;padding:.45rem .2rem;border-radius:7px;background:var(--dosSurf);border:1px solid var(--dosEdge)}
+  .ph .pn{font-size:.62rem;color:var(--dosInk3)}
+  .ph .pl{font-size:.68rem;font-weight:640;color:var(--dosInk2);margin-top:.1rem}
+  .ph.acc{background:rgba(217,167,60,.13);border-color:rgba(217,167,60,.4)}
+  .ph.acc .pl{color:var(--dosGold)}
+
+  .day{background:var(--dosSurf);border:1px solid var(--dosEdge);border-radius:12px;overflow:hidden;margin-bottom:.6rem}
+  .day-h{padding:.7rem .85rem;border-bottom:1px solid var(--dosEdge);display:flex;justify-content:space-between;align-items:center;gap:.6rem}
+  .day-h .dn{font-size:.87rem;font-weight:680}
+  .day-h .df{font-size:.68rem;color:var(--dosInk3)}
+  .ex{display:flex;justify-content:space-between;align-items:center;gap:.7rem;padding:.55rem .85rem;border-bottom:1px solid rgba(38,45,53,.55);font-size:.82rem}
+  .ex:last-child{border-bottom:none}
+  .ex .en{color:var(--dosInk);min-width:0}
+  .ex .es{color:var(--dosInk2);flex:none;font-size:.78rem}
+
+  .mtable{border:1px solid var(--dosEdge);border-radius:11px;overflow:hidden}
+  .mrow{display:flex;justify-content:space-between;padding:.6rem .85rem;border-bottom:1px solid var(--dosEdge);font-size:.82rem}
+  .mrow:last-child{border-bottom:none}
+  .mrow .mk{color:var(--dosInk2)}
+  .mrow .mv{font-weight:620}
+
+  .dos-foot{padding:1.1rem 1.2rem;background:var(--dosSurf);font-size:.7rem;color:var(--dosInk3);line-height:1.6}
+  .dos-foot b{color:var(--dosInk2)}
+
+  /* ---------- close / money ---------- */
+  .earn{background:var(--gain);color:#fff;border-radius:15px;padding:1.35rem 1.3rem;margin-bottom:.8rem}
+  .earn .ek{font-size:.64rem;letter-spacing:.11em;text-transform:uppercase;opacity:.8;font-weight:700}
+  .earn .ev{font-size:2.9rem;font-weight:770;letter-spacing:-.05em;line-height:.95;margin:.35rem 0 .25rem}
+  .earn .es{font-size:.85rem;opacity:.9}
+
+  .split{background:var(--surf);border:1px solid var(--edge);border-radius:13px;overflow:hidden}
+  .sr{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.75rem .95rem;border-bottom:1px solid var(--edge);font-size:.88rem}
+  .sr:last-child{border-bottom:none}
+  .sr .sk{color:var(--ink-2)}
+  .sr .sv{font-weight:660}
+
+  .studio{background:var(--brand);color:#fff;border-radius:15px;padding:1.25rem 1.25rem;margin-top:.8rem}
+  .studio .sk2{font-size:.63rem;letter-spacing:.11em;text-transform:uppercase;opacity:.78;font-weight:700;margin-bottom:.7rem}
+  .studio .sv2{font-size:1.9rem;font-weight:760;letter-spacing:-.04em;line-height:1}
+  .studio p{font-size:.85rem;opacity:.92;margin-top:.5rem;line-height:1.55}
+  .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.95rem}
+  .sg{background:rgba(255,255,255,.12);border-radius:9px;padding:.6rem .7rem}
+  .sg .k{font-size:.6rem;letter-spacing:.05em;text-transform:uppercase;opacity:.8}
+  .sg .v{font-size:1.05rem;font-weight:720;letter-spacing:-.02em;margin-top:.1rem}
+
+  .msg{background:var(--sunk);border:1px solid var(--edge);border-radius:12px;padding:.9rem .95rem;font-size:.85rem;color:var(--ink-2);line-height:1.55;margin-top:.8rem}
+  .msg b{color:var(--ink);font-weight:620}
+
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:1.5rem;z-index:50;background:var(--ink);color:var(--bg);padding:.7rem 1.05rem;border-radius:11px;font-size:.85rem;font-weight:580;box-shadow:var(--shBig);opacity:0;pointer-events:none;transition:.22s}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+</style>
+
+<div class="app">
+  <div class="bar">
+    <div class="bmark">
+      <svg viewBox="0 0 26 19" aria-hidden="true"><path d="M2 16 L9 10 L13 12.5 L24 2.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="2.5" r="2.2" fill="currentColor"/></svg>
+      <div><div class="b1">Formkurve</div><div class="b2">Marco Keller · FitPoint</div></div>
+    </div>
+    <div class="month"><div class="ml">August</div><div class="mv mo" id="monthTotal">1.116 €</div></div>
+  </div>
+
+  <div class="body" id="body">
+
+    <!-- ============ 1 AUFNAHME ============ -->
+    <section class="view on" id="v-in">
+      <div class="pad">
+        <div class="kick">Neue Aufnahme</div>
+        <h1 class="big">Sechs Angaben. Fertiges Programm.</h1>
+        <p class="lede">Nimm es direkt auf der Fläche auf. Das Programm ist fertig, bevor ihr euch verabschiedet.</p>
+
+        <div class="fset">
+          <div class="flab">Name des Mitglieds</div>
+          <input class="tin" id="iName" type="text" placeholder="z. B. Julia Kern" oninput="valid()">
+        </div>
+
+        <div class="fset">
+          <div class="flab">Ziel</div>
+          <div class="grid2">
+            <button class="pick" onclick="setP('goal','ab',this)">Abnehmen<span class="pk-s">Fett reduzieren</span></button>
+            <button class="pick" onclick="setP('goal','mu',this)">Muskelaufbau<span class="pk-s">Masse zulegen</span></button>
+            <button class="pick" onclick="setP('goal','fit',this)">Fitter werden<span class="pk-s">Ausdauer &amp; Kraft</span></button>
+            <button class="pick" onclick="setP('goal','ru',this)">Rücken<span class="pk-s">Haltung stärken</span></button>
+          </div>
+        </div>
+
+        <div class="fset">
+          <div class="flab">Geschlecht <em>für den Grundumsatz</em></div>
+          <div class="grid2">
+            <button class="pick" onclick="setP('sex','w',this)">Weiblich</button>
+            <button class="pick" onclick="setP('sex','m',this)">Männlich</button>
+          </div>
+        </div>
+
+        <div class="fset">
+          <div class="flab">Alter</div>
+          <div class="stepper"><button onclick="bump('age',-1)" aria-label="Alter runter">−</button><span class="sv mo"><span id="vAge">34</span> <span class="su">Jahre</span></span><button onclick="bump('age',1)" aria-label="Alter hoch">+</button></div>
+        </div>
+
+        <div class="fset">
+          <div class="flab">Größe</div>
+          <div class="stepper"><button onclick="bump('cm',-1)" aria-label="Größe runter">−</button><span class="sv mo"><span id="vCm">168</span> <span class="su">cm</span></span><button onclick="bump('cm',1)" aria-label="Größe hoch">+</button></div>
+        </div>
+
+        <div class="fset">
+          <div class="flab">Gewicht heute</div>
+          <div class="stepper"><button onclick="bump('kg',-1)" aria-label="Gewicht runter">−</button><span class="sv mo"><span id="vKg">78</span> <span class="su">kg</span></span><button onclick="bump('kg',1)" aria-label="Gewicht hoch">+</button></div>
+        </div>
+
+        <div class="fset">
+          <div class="flab">Trainingstage pro Woche</div>
+          <div class="grid4">
+            <button class="pick" onclick="setP('days',2,this)">2×</button>
+            <button class="pick" onclick="setP('days',3,this)">3×</button>
+            <button class="pick" onclick="setP('days',4,this)">4×</button>
+            <button class="pick" onclick="setP('days',5,this)">5×</button>
+          </div>
+        </div>
+
+        <div class="fset">
+          <div class="flab">Erfahrung</div>
+          <div class="grid2">
+            <button class="pick" onclick="setP('exp','a',this)">Einsteiger<span class="pk-s">unter 1 Jahr</span></button>
+            <button class="pick" onclick="setP('exp','f',this)">Geübt<span class="pk-s">über 1 Jahr</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="cta-wrap">
+        <button class="cta" id="btnGen" disabled onclick="generate()">Programm erstellen</button>
+      </div>
+    </section>
+
+    <!-- ============ 2 RECHNEN ============ -->
+    <section class="view" id="v-calc">
+      <div class="compute">
+        <svg class="spin" viewBox="0 0 44 44"><circle class="tr" cx="22" cy="22" r="19"/><circle class="ar" cx="22" cy="22" r="19"/></svg>
+        <div class="clines" id="cLines"></div>
+      </div>
+    </section>
+
+    <!-- ============ 3 DOSSIER ============ -->
+    <section class="view" id="v-dos">
+      <div class="dos" id="dos"></div>
+      <div class="cta-wrap">
+        <button class="cta gain" onclick="show('v-close')">Programm verkaufen →</button>
+      </div>
+    </section>
+
+    <!-- ============ 4 ABSCHLUSS ============ -->
+    <section class="view" id="v-close">
+      <div class="pad">
+        <div class="kick">Abschluss</div>
+        <h1 class="big" id="closeH">Julia startet.</h1>
+        <p class="lede">Das Programm ist erstellt und liegt bereit. Sobald sie zusagt, tippst du hier — Zahlung, Rechnung und Aufteilung laufen automatisch.</p>
+
+        <div style="margin-top:1.5rem">
+          <div class="earn">
+            <div class="ek">Das bleibt bei dir</div>
+            <div class="ev mo" id="eNet">279 €</div>
+            <div class="es" id="eSub">für rund 2,5 Stunden Arbeit über 8 Wochen</div>
+          </div>
+
+          <div class="split">
+            <div class="sr"><span class="sk">Programmpreis</span><span class="sv mo" id="sPrice">399 €</span></div>
+            <div class="sr"><span class="sk">Anteil Studio (10 %)</span><span class="sv mo" id="sStudio">40 €</span></div>
+            <div class="sr"><span class="sk">Systemgebühr (20 %)</span><span class="sv mo" id="sSys">80 €</span></div>
+            <div class="sr"><span class="sk"><b>Dein Anteil (70 %)</b></span><span class="sv mo" style="color:var(--gain)" id="sNet">279 €</span></div>
+          </div>
+
+          <div class="studio">
+            <div class="sk2">Was das Studio davon hat</div>
+            <div class="sv2 mo" id="stVal">388 €</div>
+            <p id="stTxt">Beteiligung plus der Beitrag, den dieses Mitglied weiterzahlt, statt zu kündigen.</p>
+            <div class="sgrid">
+              <div class="sg"><div class="k">Beteiligung</div><div class="v mo" id="sg1">40 €</div></div>
+              <div class="sg"><div class="k">Gehaltene Beiträge</div><div class="v mo" id="sg2">348 €</div></div>
+              <div class="sg"><div class="k">Besuche vorher</div><div class="v mo">1,6 ×</div></div>
+              <div class="sg"><div class="k">Im Programm</div><div class="v mo">2,9 ×</div></div>
+            </div>
+          </div>
+
+          <div class="msg" id="waMsg"></div>
+        </div>
+      </div>
+      <div class="cta-wrap">
+        <button class="cta gain" onclick="closeDeal()">Bezahlt — Kunde anlegen</button>
+        <button class="cta ghost" style="margin-top:.5rem" onclick="reset()">Nächste Aufnahme</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var P = {name:'', goal:null, sex:null, age:34, cm:168, kg:78, days:null, exp:null};
+  var R = null, monthTotal = 1116;
+
+  function $(id){return document.getElementById(id)}
+  function eur(n){return Math.round(n).toLocaleString('de-DE')+' €'}
+  function n1(n){return n.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+  window.toast=function(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on')},2200)};
+
+  window.show=function(id){
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')});
+    $(id).classList.add('on'); $('body').scrollTop=0;
+  };
+
+  window.setP=function(k,v,el){
+    P[k]=v;
+    Array.prototype.forEach.call(el.parentElement.children,function(b){b.setAttribute('aria-pressed','false')});
+    el.setAttribute('aria-pressed','true'); valid();
+  };
+  window.bump=function(k,d){
+    var lim={age:[14,90],cm:[130,215],kg:[35,220]}[k];
+    P[k]=Math.min(lim[1],Math.max(lim[0],P[k]+d));
+    $({age:'vAge',cm:'vCm',kg:'vKg'}[k]).textContent=P[k];
+  };
+  window.valid=function(){
+    P.name=$('iName').value.trim();
+    $('btnGen').disabled = !(P.name && P.goal && P.sex && P.days && P.exp);
+  };
+
+  // ---------------- Sportwissenschaft ----------------
+  function calc(){
+    var bmr = P.sex==='m' ? 10*P.kg + 6.25*P.cm - 5*P.age + 5
+                          : 10*P.kg + 6.25*P.cm - 5*P.age - 161;
+    var act = {2:1.375, 3:1.46, 4:1.55, 5:1.64}[P.days];
+    var tdee = bmr*act;
+
+    var kcal, dir, prot;
+    if(P.goal==='ab'){ kcal = Math.max(bmr*1.1, tdee*0.80); dir='Defizit'; prot=2.0; }
+    else if(P.goal==='mu'){ kcal = tdee*1.10; dir='Überschuss'; prot=1.8; }
+    else { kcal = tdee; dir='Erhalt'; prot=1.6; }
+
+    var pg = Math.round(prot*P.kg);
+    var fg = Math.round(0.8*P.kg);
+    var cg = Math.max(60, Math.round((kcal - pg*4 - fg*9)/4));
+
+    // 8-Wochen-Prognose, bewusst konservativ
+    var start = P.kg, end;
+    if(P.goal==='ab'){ end = start*(1 - 0.006*8); }
+    else if(P.goal==='mu'){ end = start + (P.exp==='a'?0.22:0.13)*8; }
+    else if(P.goal==='fit'){ end = start*(1 - 0.003*8); }
+    else { end = start; }
+
+    return {bmr:Math.round(bmr), tdee:Math.round(tdee), kcal:Math.round(kcal), dir:dir,
+            pg:pg, fg:fg, cg:cg, start:start, end:Math.round(end*10)/10,
+            delta:Math.round((end-start)*10)/10};
+  }
+
+  var EX = {
+    squat:['Kniebeuge (Langhantel)','Beinpresse','Goblet-Kniebeuge','Ausfallschritte'],
+    hinge:['Rumänisches Kreuzheben','Beinbeuger liegend','Hyperextension','Hüftheben'],
+    hpush:['Bankdrücken','Kurzhantel-Bankdrücken','Brustpresse','Liegestütz erhöht'],
+    hpull:['Rudern am Kabel','Langhantelrudern','Rudermaschine','Kurzhantelrudern'],
+    vpush:['Schulterdrücken Kurzhantel','Schulterdrücken Maschine','Seitheben'],
+    vpull:['Latzug breit','Klimmzug unterstützt','Latzug eng'],
+    core:['Unterarmstütz','Bauchpresse','Pallof-Press','Beinheben hängend'],
+    isoU:['Bizepscurl Kurzhantel','Trizepsdrücken Kabel','Face Pull','Seitheben Kurzhantel'],
+    isoL:['Wadenheben stehend','Beinstrecker','Abduktoren','Wadenheben sitzend']
+  };
+
+  // Tagesnamen und Übungsmuster müssen zusammenpassen — ein „Unterkörper"-Tag
+  // mit Bankdrücken darin killt die Glaubwürdigkeit beim ersten Blick.
+  function dayPlan(){
+    if(P.goal==='ru'){
+      var ruTage=[
+        {n:'Rücken &amp; Rumpf A', p:['hinge','hpull','core','vpull','isoU']},
+        {n:'Ganzkörper stabil',    p:['squat','core','hpull','hinge','isoL']},
+        {n:'Rücken &amp; Rumpf B', p:['hinge','vpull','core','hpush','isoU']},
+        {n:'Beine &amp; Rumpf',    p:['squat','hinge','core','isoL']},
+        {n:'Ganzkörper leicht',    p:['hpull','squat','core','vpush','isoU']}
+      ];
+      return ruTage.slice(0,P.days);
+    }
+    if(P.days===2) return [
+      {n:'Ganzkörper A', p:['squat','hpush','hpull','core','isoL']},
+      {n:'Ganzkörper B', p:['hinge','vpull','vpush','core','isoU']}
+    ];
+    if(P.days===3) return [
+      {n:'Ganzkörper A', p:['squat','hpush','hpull','core','isoL']},
+      {n:'Ganzkörper B', p:['hinge','vpull','vpush','core','isoU']},
+      {n:'Ganzkörper C', p:['squat','hpush','hpull','hinge','isoU']}
+    ];
+    if(P.days===4) return [
+      {n:'Unterkörper A', p:['squat','hinge','core','isoL']},
+      {n:'Oberkörper A',  p:['hpush','hpull','vpush','isoU']},
+      {n:'Unterkörper B', p:['hinge','squat','core','isoL']},
+      {n:'Oberkörper B',  p:['vpull','hpush','hpull','isoU']}
+    ];
+    return [
+      {n:'Unterkörper A', p:['squat','hinge','core','isoL']},
+      {n:'Oberkörper A',  p:['hpush','hpull','vpush','isoU']},
+      {n:'Ganzkörper',    p:['squat','vpull','core','isoU']},
+      {n:'Unterkörper B', p:['hinge','squat','core','isoL']},
+      {n:'Oberkörper B',  p:['vpull','hpush','hpull','isoU']}
+    ];
+  }
+  function scheme(){
+    if(P.goal==='mu') return {s:4, r:'6–10', p:'90–120 s'};
+    if(P.goal==='ab') return {s:3, r:'10–12', p:'60–75 s'};
+    if(P.goal==='ru') return {s:3, r:'12–15', p:'60 s'};
+    return {s:3, r:'12–15', p:'45–60 s'};
+  }
+
+  function days(){
+    var sc = scheme(), plan = dayPlan(), out = [];
+    plan.forEach(function(day, i){
+      var ex = [], used = {};
+      day.p.forEach(function(k, j){
+        var pool = EX[k];
+        // innerhalb eines Tages nie dieselbe Übung zweimal
+        var name, tries = 0;
+        do { name = pool[(i + j + tries) % pool.length]; tries++; }
+        while(used[name] && tries < pool.length);
+        used[name] = 1;
+        var sets = (j === 0 && P.goal === 'mu') ? sc.s + 1 : sc.s;
+        var reps = (k === 'core') ? '3 × 30–45 s' : sets + ' × ' + sc.r;
+        ex.push({n:name, s:reps});
+      });
+      out.push({name:day.n, pause:sc.p, ex:ex});
+    });
+    return out;
+  }
+
+  // ---------------- Kurve ----------------
+  function curve(r){
+    var w=440,h=132,pl=34,pr=12,pt=14,pb=24;
+    var lo = Math.min(r.start, r.end), hi = Math.max(r.start, r.end);
+    var span = Math.max(1.2, (hi-lo)*1.75);
+    var mid = (hi+lo)/2, top = mid+span/2, bot = mid-span/2;
+    function X(w8){ return pl + (w-pl-pr)*(w8/8) }
+    function Y(kg){ return pt + (h-pt-pb)*(1 - (kg-bot)/(top-bot)) }
+    var pts=[];
+    for(var i=0;i<=8;i++){
+      var t=i/8, e = 1-Math.pow(1-t,1.55);
+      pts.push([X(i), Y(r.start + (r.end-r.start)*e)]);
+    }
+    var line = pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' ');
+    var area = line + ' L'+pts[pts.length-1][0].toFixed(1)+' '+(h-pb)+' L'+pts[0][0].toFixed(1)+' '+(h-pb)+' Z';
+    var grid='';
+    [0,1,2,3].forEach(function(i){
+      var y = pt + (h-pt-pb)*i/3;
+      grid += '<line x1="'+pl+'" y1="'+y.toFixed(1)+'" x2="'+(w-pr)+'" y2="'+y.toFixed(1)+'" stroke="#262D35" stroke-width="1"/>';
+    });
+    var labels='';
+    [0,4,8].forEach(function(i){
+      labels += '<text x="'+X(i).toFixed(1)+'" y="'+(h-7)+'" fill="#727B84" font-size="9" text-anchor="middle">W'+i+'</text>';
+    });
+    labels += '<text x="'+(pl-6)+'" y="'+(Y(r.start)+3).toFixed(1)+'" fill="#727B84" font-size="9" text-anchor="end">'+n1(r.start)+'</text>';
+    labels += '<text x="'+(pl-6)+'" y="'+(Y(r.end)+3).toFixed(1)+'" fill="#46C285" font-size="9" text-anchor="end">'+n1(r.end)+'</text>';
+
+    return '<svg class="curve" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Prognostizierter Gewichtsverlauf über acht Wochen">'
+      + grid
+      + '<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46C285" stop-opacity=".26"/><stop offset="1" stop-color="#46C285" stop-opacity="0"/></linearGradient></defs>'
+      + '<path d="'+area+'" fill="url(#g1)"/>'
+      + '<path d="'+line+'" fill="none" stroke="#46C285" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<circle cx="'+pts[0][0].toFixed(1)+'" cy="'+pts[0][1].toFixed(1)+'" r="3.4" fill="#727B84"/>'
+      + '<circle cx="'+pts[8][0].toFixed(1)+'" cy="'+pts[8][1].toFixed(1)+'" r="4.2" fill="#46C285"/>'
+      + labels + '</svg>';
+  }
+
+  // ---------------- Dossier ----------------
+  var GOALN = {ab:'Abnehmen', mu:'Muskelaufbau', fit:'Fitter &amp; belastbarer', ru:'Rücken &amp; Haltung'};
+
+  function build(){
+    var r = R, ds = days(), sc = scheme();
+    var kc = r.pg*4 + r.fg*9 + r.cg*4;
+    var pp = Math.round(r.pg*4/kc*100), fp = Math.round(r.fg*9/kc*100), cp = 100-pp-fp;
+    var d = new Date(), end = new Date(d.getTime()+56*864e5);
+    var fmt = function(x){return x.toLocaleDateString('de-DE',{day:'2-digit',month:'short'})};
+
+    var h = '';
+    h += '<div class="dos-pad dos-cover">'
+       + '<div class="dos-tag">8-Wochen-Programm</div>'
+       + '<div class="dos-name">'+esc(P.name)+'</div>'
+       + '<div class="dos-prog">'+GOALN[P.goal]+' · '+P.days+'× pro Woche · '+(P.exp==='a'?'Einsteiger':'Geübt')+'</div>'
+       + '<div class="dos-meta">'
+       +   '<div><span class="k">Zeitraum</span><span class="v mo">'+fmt(d)+' – '+fmt(end)+'</span></div>'
+       +   '<div><span class="k">Erstellt von</span><span class="v">Marco Keller</span></div>'
+       +   '<div><span class="k">Messpunkte</span><span class="v mo">W0 · W4 · W8</span></div>'
+       + '</div></div>';
+
+    // Prognose
+    var dtxt = r.delta === 0 ? 'Gewicht stabil, Kraft rauf'
+             : (r.delta<0 ? n1(r.delta)+' kg' : '+'+n1(r.delta)+' kg');
+    h += '<div class="dos-pad dos-sec"><div class="dos-h">Prognose</div>'
+       + '<div class="proj">'
+       +   '<div class="pcol"><span class="pk">Heute</span><span class="pv mo">'+n1(r.start)+'</span></div>'
+       +   '<div class="parrow"></div>'
+       +   '<div class="pcol" style="text-align:right"><span class="pk">Woche 8</span><span class="pv t mo">'+n1(r.end)+'</span></div>'
+       + '</div>'
+       + '<span class="delta mo">'+dtxt+'</span>'
+       + curve(r)
+       + '<p class="cnote">Konservativ gerechnet: '+(P.goal==='ab'?'0,6 % Körpergewicht pro Woche':(P.goal==='mu'?(P.exp==='a'?'0,22':'0,13')+' kg Aufbau pro Woche':'Gewicht bleibt weitgehend stabil'))+'. Realistisch bei eingehaltenem Plan — kein Versprechen.</p>'
+       + '</div>';
+
+    // Ernährung
+    h += '<div class="dos-pad dos-sec"><div class="dos-h">Ernährungsrahmen</div>'
+       + '<div class="nutri">'
+       +   '<div class="nu"><div class="k">Kalorien</div><div class="v mo">'+r.kcal+'</div><div class="u">kcal · '+r.dir+'</div></div>'
+       +   '<div class="nu"><div class="k">Eiweiß</div><div class="v mo">'+r.pg+'</div><div class="u">g pro Tag</div></div>'
+       +   '<div class="nu"><div class="k">Grundumsatz</div><div class="v mo">'+r.bmr+'</div><div class="u">kcal in Ruhe</div></div>'
+       + '</div>'
+       + '<div class="macro"><i style="width:'+pp+'%;background:#46C285"></i><i style="width:'+fp+'%;background:#D9A73C"></i><i style="width:'+cp+'%;background:#5E9BD1"></i></div>'
+       + '<div class="mlg">'
+       +   '<span style="--c:#46C285"><i></i>Eiweiß '+r.pg+' g</span>'
+       +   '<span><i></i>Fett '+r.fg+' g</span>'
+       +   '<span><i></i>Kohlenhydrate '+r.cg+' g</span>'
+       + '</div>'
+       + '<p class="cnote" style="margin-top:.8rem">Gesamtumsatz bei '+P.days+' Trainingstagen: '+r.tdee+' kcal. Der Wert oben ist daraus abgeleitet — keine Diät, sondern ein Rahmen für den Alltag.</p>'
+       + '</div>';
+
+    // Phasen
+    h += '<div class="dos-pad dos-sec"><div class="dos-h">Aufbau über acht Wochen</div>'
+       + '<div class="phases">'
+       +   '<div class="ph"><div class="pn mo">W1–2</div><div class="pl">Technik</div></div>'
+       +   '<div class="ph acc"><div class="pn mo">W3–4</div><div class="pl">Last ↑</div></div>'
+       +   '<div class="ph"><div class="pn mo">W5–6</div><div class="pl">Volumen</div></div>'
+       +   '<div class="ph acc"><div class="pn mo">W7–8</div><div class="pl">Peak</div></div>'
+       + '</div>'
+       + '<p class="cnote">Gewicht steigt, sobald die obere Wiederholungszahl sauber erreicht wird. In Woche 4 und 8 wird gemessen — daran wird der Plan angepasst.</p>'
+       + '</div>';
+
+    // Trainingstage
+    h += '<div class="dos-pad dos-sec"><div class="dos-h">Der Plan · '+P.days+' Tage</div>';
+    ds.forEach(function(day){
+      h += '<div class="day"><div class="day-h"><span class="dn">'+day.name+'</span><span class="df mo">Pause '+day.pause+'</span></div>';
+      day.ex.forEach(function(e){
+        h += '<div class="ex"><span class="en">'+e.n+'</span><span class="es mo">'+e.s+'</span></div>';
+      });
+      h += '</div>';
+    });
+    h += '</div>';
+
+    // Messpunkte
+    h += '<div class="dos-pad dos-sec"><div class="dos-h">Was gemessen wird</div>'
+       + '<div class="mtable">'
+       +   '<div class="mrow"><span class="mk">Körpergewicht</span><span class="mv mo">W0 · W4 · W8</span></div>'
+       +   '<div class="mrow"><span class="mk">Umfang Taille &amp; Hüfte</span><span class="mv mo">W0 · W4 · W8</span></div>'
+       +   '<div class="mrow"><span class="mk">Trainingsgewichte</span><span class="mv mo">jede Einheit</span></div>'
+       +   '<div class="mrow"><span class="mk">Check-in</span><span class="mv mo">wöchentlich</span></div>'
+       + '</div></div>';
+
+    h += '<div class="dos-foot"><b>Formkurve</b> · erstellt am '+fmt(d)+' für '+esc(P.name)+'<br>'
+       + 'Grundumsatz nach Mifflin-St Jeor. Prognose auf Basis anerkannter Richtwerte, individuell abweichend. '
+       + 'Bei Vorerkrankungen bitte ärztlich abklären.</div>';
+
+    $('dos').innerHTML = h;
+  }
+
+  // ---------------- Ablauf ----------------
+  var STEPS = ['Grundumsatz berechnet','Kalorien &amp; Eiweiß gesetzt','Übungen ausgewählt','Progression über 8 Wochen','Prognose erstellt'];
+
+  window.generate = function(){
+    R = calc();
+    show('v-calc');
+    var box = $('cLines');
+    box.innerHTML = STEPS.map(function(s){
+      return '<div class="cline"><svg class="ck" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 8.5l3.2 3.2L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+s+'</span></div>';
+    }).join('');
+    var els = box.querySelectorAll('.cline');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){ els.forEach(function(e){e.classList.add('hit')}); finish(); return; }
+    els.forEach(function(e,i){ setTimeout(function(){ e.classList.add('hit'); }, 210+i*230); });
+    setTimeout(finish, 210+STEPS.length*230+320);
+  };
+
+  function finish(){
+    build();
+    var price = 399, studio = price*.10, sys = price*.20, net = price-studio-sys;
+    $('closeH').textContent = P.name.split(' ')[0] + ' startet.';
+    $('sPrice').textContent = eur(price);
+    $('sStudio').textContent = eur(studio);
+    $('sSys').textContent = eur(sys);
+    $('sNet').textContent = eur(net);
+    $('eNet').textContent = eur(net);
+    $('eSub').textContent = 'für rund 2,5 Stunden Arbeit über 8 Wochen — das sind ' + eur(net/2.5) + ' pro Stunde';
+    var beitrag = 348;
+    $('stVal').textContent = eur(studio + beitrag);
+    $('sg1').textContent = eur(studio);
+    $('sg2').textContent = eur(beitrag);
+    $('waMsg').innerHTML = '<b>Fertige Nachricht an '+esc(P.name.split(' ')[0])+':</b><br><br>„Hi '+esc(P.name.split(' ')[0])
+      +', dein Programm ist fertig — 8 Wochen, '+P.days+'× die Woche, mit Ernährungsrahmen und Messpunkten. '
+      +'Prognose: '+n1(R.start)+' kg → '+n1(R.end)+' kg. Schick ich dir gleich rüber, dann kannst du in Ruhe schauen."';
+    show('v-dos');
+  }
+
+  window.closeDeal = function(){
+    monthTotal += 279;
+    $('monthTotal').textContent = eur(monthTotal);
+    toast(P.name.split(' ')[0]+' angelegt · +279 €');
+    setTimeout(reset, 900);
+  };
+
+  window.reset = function(){
+    P = {name:'', goal:null, sex:null, age:34, cm:168, kg:78, days:null, exp:null};
+    $('iName').value='';
+    document.querySelectorAll('.pick').forEach(function(b){b.setAttribute('aria-pressed','false')});
+    $('vAge').textContent=34; $('vCm').textContent=168; $('vKg').textContent=78;
+    $('btnGen').disabled=true;
+    show('v-in');
+  };
+
+  // Legenden-Farben
+  var st=document.createElement('style');
+  st.textContent='.mlg span:nth-child(1)::before{background:#46C285}.mlg span:nth-child(2)::before{background:#D9A73C}.mlg span:nth-child(3)::before{background:#5E9BD1}';
+  document.head.appendChild(st);
+})();
+</script>

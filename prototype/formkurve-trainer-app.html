@@ -1,0 +1,666 @@
+<style>
+  :root{
+    --paper:#FBFBF9; --card:#FFFFFF; --sunk:#F1F2EE; --deep:#EAECE6;
+    --ink:#191C1F; --ink-2:#4E555C; --ink-3:#878E95;
+    --edge:#E2E5DE; --edge-2:#D3D7CE;
+    --brand:#2E4568; --brand-2:#3D5A85; --brand-wash:#EAEFF6;
+    --money:#1F7A4C; --money-wash:#E6F2EA;
+    --heat:#B0632A; --heat-wash:#FAEFE5;
+    --shadow:0 1px 2px rgba(25,28,31,.05), 0 10px 30px -14px rgba(25,28,31,.25);
+    --lift:0 1px 3px rgba(25,28,31,.08), 0 20px 44px -20px rgba(25,28,31,.42);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0E1113; --card:#171B1E; --sunk:#1E2327; --deep:#252B30;
+      --ink:#ECEEEF; --ink-2:#A3ABB2; --ink-3:#6E777E;
+      --edge:#272D32; --edge-2:#333A40;
+      --brand:#8FB2DE; --brand-2:#A6C4E9; --brand-wash:#1A222D;
+      --money:#4FC287; --money-wash:#12261C;
+      --heat:#D9924F; --heat-wash:#2A1E13;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -14px rgba(0,0,0,.7);
+      --lift:0 1px 3px rgba(0,0,0,.6), 0 20px 44px -20px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E1113; --card:#171B1E; --sunk:#1E2327; --deep:#252B30;
+    --ink:#ECEEEF; --ink-2:#A3ABB2; --ink-3:#6E777E;
+    --edge:#272D32; --edge-2:#333A40;
+    --brand:#8FB2DE; --brand-2:#A6C4E9; --brand-wash:#1A222D;
+    --money:#4FC287; --money-wash:#12261C;
+    --heat:#D9924F; --heat-wash:#2A1E13;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -14px rgba(0,0,0,.7);
+    --lift:0 1px 3px rgba(0,0,0,.6), 0 20px 44px -20px rgba(0,0,0,.9);
+  }
+  :root[data-theme="light"]{
+    --paper:#FBFBF9; --card:#FFFFFF; --sunk:#F1F2EE; --deep:#EAECE6;
+    --ink:#191C1F; --ink-2:#4E555C; --ink-3:#878E95;
+    --edge:#E2E5DE; --edge-2:#D3D7CE;
+    --brand:#2E4568; --brand-2:#3D5A85; --brand-wash:#EAEFF6;
+    --money:#1F7A4C; --money-wash:#E6F2EA;
+    --heat:#B0632A; --heat-wash:#FAEFE5;
+    --shadow:0 1px 2px rgba(25,28,31,.05), 0 10px 30px -14px rgba(25,28,31,.25);
+    --lift:0 1px 3px rgba(25,28,31,.08), 0 20px 44px -20px rgba(25,28,31,.42);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper)}
+  body{
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.45;
+  }
+  .mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-variant-numeric:tabular-nums}
+  h1,h2,h3{margin:0;font-weight:660;letter-spacing:-.022em;line-height:1.2}
+  p{margin:0}
+  button{font:inherit}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+  /* ---- outer ---- */
+  .outer{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0}
+  @media(min-width:760px){.outer{padding:2rem 1rem 3rem}}
+
+  .handoff{max-width:430px;width:100%;margin-bottom:1.15rem;display:none}
+  @media(min-width:760px){.handoff{display:block}}
+  .handoff-in{border-left:2px solid var(--brand);padding-left:.85rem}
+  .handoff-in p{font-size:.85rem;color:var(--ink-2)}
+  .handoff-in b{color:var(--ink);font-weight:620}
+
+  .device{
+    width:100%;max-width:430px;background:var(--card);display:flex;flex-direction:column;
+    min-height:100vh;
+  }
+  @media(min-width:760px){
+    .device{min-height:830px;height:830px;border:1px solid var(--edge-2);border-radius:26px;box-shadow:var(--lift);overflow:hidden}
+  }
+
+  /* ---- top ---- */
+  .top{
+    padding:.85rem 1.1rem;border-bottom:1px solid var(--edge);background:var(--card);
+    display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex:none;
+  }
+  .top-id{display:flex;align-items:center;gap:.6rem;min-width:0}
+  .av{
+    width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;flex:none;
+    display:grid;place-items:center;font-size:.82rem;font-weight:680;letter-spacing:-.01em;
+  }
+  .top-id .nm{font-size:.88rem;font-weight:620;line-height:1.15}
+  .top-id .st{font-size:.7rem;color:var(--ink-3);line-height:1.15}
+  .bell{
+    position:relative;width:34px;height:34px;border-radius:9px;border:1px solid var(--edge);
+    background:var(--sunk);color:var(--ink-2);display:grid;place-items:center;cursor:pointer;flex:none;
+  }
+  .bell .cnt{
+    position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;
+    background:var(--heat);color:#fff;font-size:.62rem;font-weight:700;display:grid;place-items:center;
+  }
+
+  /* ---- scroll ---- */
+  .scroll{flex:1;overflow-y:auto;padding:1.05rem 1.1rem 1.4rem;display:flex;flex-direction:column;gap:1.05rem}
+  .tab{display:none;flex-direction:column;gap:1.05rem}
+  .tab.on{display:flex}
+
+  .h-row{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem}
+  .h-row h2{font-size:1.24rem}
+  .h-row .sub{font-size:.74rem;color:var(--ink-3)}
+  .sect-l{font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:660}
+
+  /* ---- cards ---- */
+  .card{background:var(--card);border:1px solid var(--edge);border-radius:13px;overflow:hidden}
+  .row{
+    display:flex;align-items:center;gap:.75rem;padding:.8rem .9rem;border-bottom:1px solid var(--edge);
+    width:100%;text-align:left;background:none;border-left:none;border-right:none;border-top:none;
+    color:inherit;cursor:pointer;
+  }
+  .row:last-child{border-bottom:none}
+  .row:hover{background:var(--sunk)}
+  .row .lead{flex:1;min-width:0}
+  .row .t1{font-size:.9rem;font-weight:600;line-height:1.25}
+  .row .t2{font-size:.75rem;color:var(--ink-3);line-height:1.3;margin-top:.08rem}
+  .row .chev{color:var(--ink-3);flex:none}
+  .dotmark{width:8px;height:8px;border-radius:50%;flex:none}
+  .dotmark.new{background:var(--heat)}
+  .dotmark.warm{background:var(--brand)}
+  .dotmark.ok{background:var(--money)}
+
+  .time{
+    font-size:.82rem;font-weight:680;width:2.9rem;flex:none;color:var(--ink);letter-spacing:-.01em;
+  }
+
+  .tag{display:inline-block;font-size:.67rem;font-weight:650;padding:.16rem .45rem;border-radius:5px;white-space:nowrap}
+  .tag.new{background:var(--heat-wash);color:var(--heat)}
+  .tag.brand{background:var(--brand-wash);color:var(--brand)}
+  .tag.money{background:var(--money-wash);color:var(--money)}
+  .tag.mute{background:var(--sunk);color:var(--ink-3)}
+
+  /* ---- stat strip ---- */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem}
+  .st-c{background:var(--card);border:1px solid var(--edge);border-radius:11px;padding:.7rem .6rem}
+  .st-c .k{font-size:.63rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.2rem}
+  .st-c .v{font-size:1.22rem;font-weight:700;letter-spacing:-.03em}
+  .st-c.money .v{color:var(--money)}
+
+  /* ---- money hero ---- */
+  .earn{
+    background:var(--money-wash);border:1px solid var(--money);border-radius:14px;padding:1.15rem 1.15rem;
+  }
+  .earn .k{font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--money);font-weight:680;margin-bottom:.4rem}
+  .earn .v{font-size:2.7rem;font-weight:740;letter-spacing:-.045em;color:var(--money);line-height:.95}
+  .earn .s{font-size:.8rem;color:var(--ink-2);margin-top:.5rem}
+
+  /* ---- buttons ---- */
+  .btn{
+    border:1px solid transparent;border-radius:10px;padding:.72rem .9rem;font-size:.87rem;font-weight:620;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  }
+  .btn-pri{background:var(--brand);color:#fff;width:100%}
+  .btn-sec{background:var(--sunk);color:var(--ink);border-color:var(--edge);width:100%}
+  .btn-money{background:var(--money);color:#fff;width:100%}
+  .btn-row{display:flex;gap:.5rem}
+  .btn-sm{padding:.5rem .7rem;font-size:.79rem;border-radius:8px}
+
+  /* ---- sheet ---- */
+  .veil{
+    position:fixed;inset:0;background:rgba(15,18,20,.5);display:none;z-index:40;
+    align-items:flex-end;justify-content:center;padding:0;
+  }
+  .veil.on{display:flex}
+  @media(min-width:760px){.veil{align-items:center;padding:1rem}}
+  .sheet{
+    background:var(--card);width:100%;max-width:430px;border-radius:18px 18px 0 0;
+    padding:1.1rem 1.15rem 1.5rem;display:flex;flex-direction:column;gap:.9rem;
+    max-height:88vh;overflow-y:auto;animation:up .22s ease;
+  }
+  @media(min-width:760px){.sheet{border-radius:16px;animation:pop .18s ease}}
+  @keyframes up{from{transform:translateY(18px);opacity:.6}to{transform:none;opacity:1}}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+  @media(prefers-reduced-motion:reduce){.sheet{animation:none}}
+  .grab{width:34px;height:4px;border-radius:2px;background:var(--edge-2);margin:0 auto .2rem}
+  .sheet h3{font-size:1.1rem}
+  .sheet .meta{font-size:.8rem;color:var(--ink-2)}
+
+  .kv{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid var(--edge);font-size:.85rem}
+  .kv:last-of-type{border-bottom:none}
+  .kv .k{color:var(--ink-3)}
+  .kv .v{font-weight:600;text-align:right}
+
+  .quote{
+    background:var(--sunk);border:1px solid var(--edge);border-radius:11px;padding:.8rem .85rem;
+    font-size:.84rem;color:var(--ink-2);line-height:1.5;
+  }
+  .quote b{color:var(--ink);font-weight:620}
+
+  .pk{border:1px solid var(--edge);border-radius:11px;padding:.75rem .85rem;cursor:pointer;background:var(--card);width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:.7rem}
+  .pk:hover{border-color:var(--brand)}
+  .pk .pn{font-size:.87rem;font-weight:620}
+  .pk .pd{font-size:.73rem;color:var(--ink-3)}
+  .pk .pp{font-size:1.02rem;font-weight:700;letter-spacing:-.02em;color:var(--money);flex:none}
+
+  /* ---- progress ---- */
+  .prog{height:5px;background:var(--deep);border-radius:3px;overflow:hidden}
+  .prog i{display:block;height:100%;background:var(--brand);border-radius:3px}
+  .prog.m i{background:var(--money)}
+
+  /* ---- report ---- */
+  .rep{border:1px solid var(--edge-2);border-radius:13px;overflow:hidden;background:var(--card)}
+  .rep-h{padding:.95rem 1rem;background:var(--brand);color:#fff}
+  .rep-h .r1{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;opacity:.82}
+  .rep-h .r2{font-size:1.02rem;font-weight:680;margin-top:.12rem}
+  .rep-h .r3{font-size:.74rem;opacity:.82;margin-top:.1rem}
+  .rep-b{padding:.95rem 1rem;display:flex;flex-direction:column;gap:.95rem}
+  .rep-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
+  .rep-c{border:1px solid var(--edge);border-radius:10px;padding:.65rem .7rem}
+  .rep-c .k{font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+  .rep-c .v{font-size:1.28rem;font-weight:710;letter-spacing:-.03em;margin-top:.15rem}
+  .rep-c.hi{background:var(--money-wash);border-color:var(--money)}
+  .rep-c.hi .v{color:var(--money)}
+
+  .bar-line{display:flex;align-items:center;gap:.6rem;font-size:.78rem;margin-bottom:.4rem}
+  .bar-line .bl{width:4.4rem;flex:none;color:var(--ink-3);font-size:.74rem}
+  .bar-t{flex:1;height:8px;background:var(--deep);border-radius:4px;overflow:hidden}
+  .bar-t i{display:block;height:100%;border-radius:4px}
+  .bar-line .bv{width:3.1rem;text-align:right;font-weight:660;flex:none}
+
+  .cap-box{border:1px solid var(--heat);background:var(--heat-wash);border-radius:11px;padding:.85rem .9rem}
+  .cap-box .cv{font-size:1.35rem;font-weight:720;color:var(--heat);letter-spacing:-.03em}
+  .cap-box p{font-size:.79rem;color:var(--ink-2);margin-top:.2rem}
+
+  /* ---- poster ---- */
+  .poster{border:1px solid var(--edge-2);border-radius:12px;background:var(--card);padding:1.3rem 1.1rem;text-align:center;display:flex;flex-direction:column;gap:.8rem;align-items:center}
+  .poster .ph{font-size:1.02rem;font-weight:700;letter-spacing:-.025em;line-height:1.25}
+  .poster .ps{font-size:.79rem;color:var(--ink-2);max-width:26ch}
+  .qr{width:112px;height:112px;border:1px dashed var(--edge-2);border-radius:9px;display:grid;place-items:center;background:var(--sunk)}
+  .qr span{font-size:.65rem;color:var(--ink-3);text-align:center;line-height:1.4;padding:.4rem}
+  .poster .pf{font-size:.7rem;color:var(--ink-3)}
+
+  /* ---- tabbar ---- */
+  .tabbar{
+    display:flex;border-top:1px solid var(--edge);background:var(--card);flex:none;
+    padding:.35rem .3rem calc(.35rem + env(safe-area-inset-bottom,0px));
+  }
+  .tb{
+    flex:1;background:none;border:none;padding:.45rem .2rem;display:flex;flex-direction:column;
+    align-items:center;gap:.16rem;color:var(--ink-3);cursor:pointer;border-radius:9px;position:relative;
+  }
+  .tb[aria-selected="true"]{color:var(--brand)}
+  .tb svg{width:21px;height:21px}
+  .tb span{font-size:.63rem;font-weight:600;letter-spacing:-.005em}
+  .tb .bump{
+    position:absolute;top:.3rem;right:calc(50% - 17px);min-width:15px;height:15px;padding:0 3px;border-radius:8px;
+    background:var(--heat);color:#fff;font-size:.58rem;font-weight:700;display:grid;place-items:center;
+  }
+
+  .empty{padding:1.6rem 1rem;text-align:center;color:var(--ink-3);font-size:.83rem}
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:5.2rem;z-index:60;
+    background:var(--ink);color:var(--paper);padding:.65rem 1rem;border-radius:10px;font-size:.83rem;font-weight:560;
+    box-shadow:var(--lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  }
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+</style>
+
+<div class="outer">
+
+  <div class="handoff">
+    <div class="handoff-in">
+      <p><b>Das bekommt dein Trainer.</b> Kein Verkaufsprospekt — das Werkzeug für die Schicht. Tippe dich durch: Lead annehmen, Termin setzen, Verkauf eintragen. Alle Zahlen rechnen mit. Der Reiter <b>Studio</b> ist der, den er dem Chef hinhält.</p>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="top">
+      <div class="top-id">
+        <div class="av">MK</div>
+        <div>
+          <div class="nm">Marco Keller</div>
+          <div class="st">FitPoint Hauptstraße</div>
+        </div>
+      </div>
+      <button class="bell" onclick="openNews()" aria-label="Neue Formchecks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke-linecap="round"/></svg>
+        <span class="cnt" id="bellCnt">3</span>
+      </button>
+    </div>
+
+    <div class="scroll" id="scroll">
+
+      <!-- ================= HEUTE ================= -->
+      <div class="tab on" id="t-heute">
+        <div class="h-row"><h2>Heute</h2><span class="sub mono" id="dateStr">Mi, 5. August</span></div>
+
+        <div class="strip">
+          <div class="st-c"><div class="k">Neu</div><div class="v mono" id="kNeu">3</div></div>
+          <div class="st-c"><div class="k">Termine</div><div class="v mono" id="kTerm">3</div></div>
+          <div class="st-c money"><div class="k">August</div><div class="v mono" id="kUms">1.197 €</div></div>
+        </div>
+
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Neue Formchecks — noch nicht kontaktiert</div>
+          <div class="card" id="newLeads"></div>
+        </div>
+
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Dein Tag</div>
+          <div class="card" id="agenda"></div>
+        </div>
+
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Braucht Aufmerksamkeit</div>
+          <div class="card" id="risks"></div>
+        </div>
+      </div>
+
+      <!-- ================= LEADS ================= -->
+      <div class="tab" id="t-leads">
+        <div class="h-row"><h2>Interessenten</h2><span class="sub" id="leadCount">—</span></div>
+        <p class="quote">Jeder Eintrag hat den Formcheck schon ausgefüllt. Du siehst Ziel und Engpass, <b>bevor</b> du das erste Wort sagst.</p>
+        <div class="card" id="allLeads"></div>
+      </div>
+
+      <!-- ================= KUNDEN ================= -->
+      <div class="tab" id="t-kunden">
+        <div class="h-row"><h2>Deine Kunden</h2><span class="sub" id="kundenCount">—</span></div>
+        <div class="card" id="kundenList"></div>
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Gruppen</div>
+          <div class="card" id="gruppen"></div>
+        </div>
+      </div>
+
+      <!-- ================= GELD ================= -->
+      <div class="tab" id="t-geld">
+        <div class="h-row"><h2>Dein Verdienst</h2><span class="sub">August 2026</span></div>
+
+        <div class="earn">
+          <div class="k">Ausgezahlt an dich</div>
+          <div class="v mono" id="gNetto">838 €</div>
+          <div class="s" id="gNettoSub">nach 10 % Studio und 20 % Systemgebühr</div>
+        </div>
+
+        <div class="card">
+          <div class="row" style="cursor:default"><div class="lead"><div class="t1">Umsatz gesamt</div><div class="t2">alle Verkäufe im August</div></div><div class="mono" style="font-weight:660" id="gBrutto">1.197 €</div></div>
+          <div class="row" style="cursor:default"><div class="lead"><div class="t1">Anteil Studio</div><div class="t2">10 % — geht an den Chef</div></div><div class="mono" style="font-weight:660;color:var(--ink-2)" id="gStudio">−120 €</div></div>
+          <div class="row" style="cursor:default"><div class="lead"><div class="t1">Systemgebühr</div><div class="t2">20 %, automatisch über Stripe</div></div><div class="mono" style="font-weight:660;color:var(--ink-2)" id="gSys">−239 €</div></div>
+        </div>
+
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Verkäufe</div>
+          <div class="card" id="sales"></div>
+        </div>
+
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Zeitaufwand</div>
+          <div class="card">
+            <div class="row" style="cursor:default"><div class="lead"><div class="t1">Stunden im August</div></div><div class="mono" style="font-weight:660" id="gStd">14 h</div></div>
+            <div class="row" style="cursor:default"><div class="lead"><div class="t1">Verdienst je Stunde</div><div class="t2">nach allen Abzügen</div></div><div class="mono" style="font-weight:660;color:var(--money)" id="gProStd">60 €</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= STUDIO ================= -->
+      <div class="tab" id="t-studio">
+        <div class="h-row"><h2>Für den Chef</h2><span class="sub">Monatsreport</span></div>
+        <p class="quote">Diesen Bildschirm drehst du um, wenn er fragt was du da machst. Oder du schickst ihn am Monatsende — <b>er kommt automatisch</b>.</p>
+
+        <div class="rep">
+          <div class="rep-h">
+            <div class="r1">Standortreport</div>
+            <div class="r2">FitPoint Hauptstraße</div>
+            <div class="r3">August 2026 · erstellt von Formkurve</div>
+          </div>
+          <div class="rep-b">
+            <div class="rep-grid">
+              <div class="rep-c"><div class="k">Formchecks</div><div class="v mono" id="rChecks">45</div></div>
+              <div class="rep-c"><div class="k">Termine</div><div class="v mono" id="rTerm">16</div></div>
+              <div class="rep-c"><div class="k">Zusatzumsatz</div><div class="v mono" id="rUms">1.197 €</div></div>
+              <div class="rep-c hi"><div class="k">Ihr Anteil</div><div class="v mono" id="rAnteil">120 €</div></div>
+            </div>
+
+            <div>
+              <div class="sect-l" style="margin-bottom:.55rem">Trainingsfrequenz der Teilnehmer</div>
+              <div class="bar-line"><span class="bl">Vorher</span><span class="bar-t"><i style="width:44%;background:var(--ink-3)"></i></span><span class="bv mono">1,6×</span></div>
+              <div class="bar-line"><span class="bl">Im Programm</span><span class="bar-t"><i style="width:81%;background:var(--money)"></i></span><span class="bv mono">2,9×</span></div>
+              <p style="font-size:.71rem;color:var(--ink-3);margin-top:.35rem">Besuche pro Woche · n = 11 · Beobachtung, kein statistischer Nachweis</p>
+            </div>
+
+            <div class="card" style="border-radius:10px">
+              <div class="row" style="cursor:default;padding:.6rem .8rem"><div class="lead"><div class="t1" style="font-size:.84rem">Kündigungen unter Teilnehmern</div></div><span class="tag money">0 von 11</span></div>
+              <div class="row" style="cursor:default;padding:.6rem .8rem"><div class="lead"><div class="t1" style="font-size:.84rem">Programm-Abbrüche</div></div><span class="tag mute">1 von 11</span></div>
+              <div class="row" style="cursor:default;padding:.6rem .8rem"><div class="lead"><div class="t1" style="font-size:.84rem">Anschluss-Abo gebucht</div></div><span class="tag money">45 %</span></div>
+            </div>
+
+            <div class="cap-box">
+              <div class="cv mono" id="rCap">5 Mitglieder</div>
+              <p>wollten einen Termin und konnten nicht bedient werden — Marco ist ausgelastet. Entgangen: <b id="rCapEur">rund 2.000 €</b> im Monat.</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-sec" onclick="toast('Report als PDF gesichert (Demo)')">Report als PDF sichern</button>
+
+        <div>
+          <div class="sect-l" style="margin-bottom:.5rem">Aushang im Studio</div>
+          <div class="poster">
+            <div class="ph">Trainierst du seit Monaten — und es passiert nichts?</div>
+            <div class="qr"><span>QR-Code<br>kommt hier rein</span></div>
+            <div class="ps">90 Sekunden, 7 Fragen. Danach weißt du, woran es hängt.</div>
+            <div class="pf">Kostenlos · ausgewertet von Marco, Trainer im Haus</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tabbar" role="tablist">
+      <button class="tb" role="tab" aria-selected="true" onclick="go('heute',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M8 2v4M16 2v4M3 10h18" stroke-linecap="round"/></svg>
+        <span>Heute</span><span class="bump" id="bmpHeute">3</span>
+      </button>
+      <button class="tb" role="tab" aria-selected="false" onclick="go('leads',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-linecap="round"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round"/></svg>
+        <span>Leads</span>
+      </button>
+      <button class="tb" role="tab" aria-selected="false" onclick="go('kunden',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z" stroke-linejoin="round"/></svg>
+        <span>Kunden</span>
+      </button>
+      <button class="tb" role="tab" aria-selected="false" onclick="go('geld',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22" stroke-linecap="round"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke-linecap="round"/></svg>
+        <span>Geld</span>
+      </button>
+      <button class="tb" role="tab" aria-selected="false" onclick="go('studio',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V8l7-5 7 5v13" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 21v-6h4v6" stroke-linecap="round"/></svg>
+        <span>Studio</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="veil" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var PAKETE = [
+    {id:'kick', n:'Kickstart', d:'4 Wochen · Plan + 2 Gruppeneinheiten', p:199},
+    {id:'trans',n:'Transformation', d:'8 Wochen · Kleingruppe + Messung', p:399},
+    {id:'plus', n:'Transformation Plus', d:'12 Wochen · + 3× Personal Training', p:699}
+  ];
+
+  var S = {
+    leads:[
+      {id:1,name:'Julia Kern',   ziel:'Abnehmen',      gap:'Struktur',   seit:'vor 4 Min.', st:'neu'},
+      {id:2,name:'Tobias Reiff', ziel:'Muskelaufbau',  gap:'Technik',    seit:'vor 2 Std.', st:'neu'},
+      {id:3,name:'Anne Möller',  ziel:'Rücken',        gap:'Konstanz',   seit:'gestern',    st:'neu'},
+      {id:4,name:'Deniz Aydin',  ziel:'Abnehmen',      gap:'Ernährung',  seit:'Montag',     st:'gebucht', slot:'Do 17:00'},
+      {id:5,name:'Sven Brandt',  ziel:'Fitter werden', gap:'Struktur',   seit:'Montag',     st:'gebucht', slot:'Sa 10:00'}
+    ],
+    kunden:[
+      {id:101,name:'Lena Hoff',    paket:'Transformation', preis:399, woche:3, besuche:'2,9×', checkin:'gut'},
+      {id:102,name:'Micha Ehlers', paket:'Transformation', preis:399, woche:3, besuche:'2,4×', checkin:'gut'},
+      {id:103,name:'Kevin Sauer',  paket:'Kickstart',      preis:199, woche:2, besuche:'0,5×', checkin:null, risiko:'2 Wochen nicht da'},
+      {id:104,name:'Martina Lang', paket:'Transformation', preis:399, woche:4, besuche:'1,8×', checkin:'schwierig', risiko:'Check-in „schwierig"'}
+    ],
+    stunden:14
+  };
+
+  function $(id){return document.getElementById(id)}
+  function eur(n){return Math.round(n).toLocaleString('de-DE')+' €'}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+  var CHEV = '<svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  window.toast = function(msg){
+    var t=$('toast'); t.textContent=msg; t.classList.add('on');
+    clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('on')},2100);
+  };
+
+  window.go = function(name, el){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+    $('t-'+name).classList.add('on');
+    document.querySelectorAll('.tb').forEach(function(b){b.setAttribute('aria-selected','false')});
+    if(el) el.setAttribute('aria-selected','true');
+    $('scroll').scrollTop = 0;
+  };
+
+  window.closeSheet = function(){ $('veil').classList.remove('on'); };
+  function openSheet(html){ $('sheet').innerHTML = '<div class="grab"></div>'+html; $('veil').classList.add('on'); }
+
+  window.openNews = function(){
+    var n = S.leads.filter(function(l){return l.st==='neu'}).length;
+    openSheet('<h3>'+n+' neue Formchecks</h3><p class="meta">Mitglieder, die den Check ausgefüllt haben und auf deine Nachricht warten. Je schneller du reagierst, desto eher erscheinen sie zum Termin.</p><button class="btn btn-pri" onclick="closeSheet();go(\'leads\',document.querySelectorAll(\'.tb\')[1])">Zu den Interessenten</button>');
+  };
+
+  // ---------- lead detail ----------
+  window.openLead = function(id){
+    var l = S.leads.filter(function(x){return x.id===id})[0];
+    if(!l) return;
+    var body = '<h3>'+esc(l.name)+'</h3><p class="meta">Formcheck '+esc(l.seit)+'</p>'
+      + '<div><div class="kv"><span class="k">Ziel</span><span class="v">'+esc(l.ziel)+'</span></div>'
+      + '<div class="kv"><span class="k">Engpass laut Check</span><span class="v">'+esc(l.gap)+'</span></div>'
+      + '<div class="kv"><span class="k">Status</span><span class="v">'+({neu:'Noch nicht kontaktiert',gebucht:'Termin steht',erschienen:'Termin gehabt'}[l.st]||l.st)+'</span></div></div>';
+
+    if(l.st==='neu'){
+      body += '<div class="quote">Vorgeschlagene Nachricht:<br><br>„Hi '+esc(l.name.split(' ')[0])+', hier ist Marco aus dem Studio. Deine Auswertung ist da — bei dir sieht\'s nach <b>'+esc(l.gap.toLowerCase())+'</b> aus. Ich hab Do 17:00 und Sa 10:00 frei für eine kurze Bestandsaufnahme, 20 Minuten, Messung inklusive. Passt eins davon?"</div>'
+        + '<div class="btn-row"><button class="btn btn-pri" onclick="book('+l.id+',\'Do 17:00\')">Do 17:00 setzen</button><button class="btn btn-sec" onclick="book('+l.id+',\'Sa 10:00\')">Sa 10:00</button></div>';
+    } else if(l.st==='gebucht'){
+      body += '<div class="quote">Termin: <b>'+esc(l.slot)+'</b>. Erinnerungen gehen 24 h und 2 h vorher automatisch raus.</div>'
+        + '<button class="btn btn-pri" onclick="showed('+l.id+')">Ist erschienen → Verkauf eintragen</button>';
+    } else {
+      body += '<button class="btn btn-money" onclick="sellSheet('+l.id+')">Verkauf eintragen</button>';
+    }
+    openSheet(body);
+  };
+
+  window.book = function(id, slot){
+    var l = S.leads.filter(function(x){return x.id===id})[0];
+    l.st='gebucht'; l.slot=slot;
+    closeSheet(); render(); toast('Termin gesetzt: '+slot);
+  };
+
+  window.showed = function(id){
+    var l = S.leads.filter(function(x){return x.id===id})[0];
+    l.st='erschienen';
+    sellSheet(id);
+  };
+
+  window.sellSheet = function(id){
+    var l = S.leads.filter(function(x){return x.id===id})[0];
+    var body = '<h3>Verkauf eintragen</h3><p class="meta">'+esc(l.name)+' · nach dem Analysetermin</p>';
+    PAKETE.forEach(function(p){
+      body += '<button class="pk" onclick="sell('+id+',\''+p.id+'\')"><span><span class="pn">'+p.n+'</span><br><span class="pd">'+p.d+'</span></span><span class="pp">'+p.p+' €</span></button>';
+    });
+    body += '<button class="btn btn-sec" onclick="noSell('+id+')">Kein Abschluss</button>';
+    openSheet(body);
+  };
+
+  window.sell = function(id, pid){
+    var l = S.leads.filter(function(x){return x.id===id})[0];
+    var p = PAKETE.filter(function(x){return x.id===pid})[0];
+    S.kunden.push({id:1000+id, name:l.name, paket:p.n, preis:p.p, woche:0, besuche:'—', checkin:null, neu:true});
+    S.leads = S.leads.filter(function(x){return x.id!==id});
+    S.stunden += 2.5;
+    closeSheet(); render(); toast(p.n+' verkauft — '+p.p+' €');
+  };
+
+  window.noSell = function(id){
+    var l = S.leads.filter(function(x){return x.id===id})[0];
+    l.st='erschienen';
+    closeSheet(); render(); toast('Notiert — kein Abschluss');
+  };
+
+  window.openKunde = function(id){
+    var k = S.kunden.filter(function(x){return x.id===id})[0];
+    if(!k) return;
+    var pct = Math.round(k.woche/8*100);
+    var body = '<h3>'+esc(k.name)+'</h3><p class="meta">'+esc(k.paket)+' · '+eur(k.preis)+'</p>'
+      + '<div><div class="kv"><span class="k">Woche</span><span class="v">'+k.woche+' von 8</span></div>'
+      + '<div class="kv"><span class="k">Besuche</span><span class="v">'+esc(k.besuche)+' pro Woche</span></div>'
+      + '<div class="kv"><span class="k">Letzter Check-in</span><span class="v">'+(k.checkin?esc(k.checkin):'ausstehend')+'</span></div></div>'
+      + '<div class="prog m"><i style="width:'+pct+'%"></i></div>';
+    if(k.risiko){
+      body += '<div class="quote" style="border-color:var(--heat);background:var(--heat-wash)"><b>'+esc(k.risiko)+'</b><br>Kurze Nachricht hilft meistens — bevor er kündigt.</div>'
+        + '<button class="btn btn-pri" onclick="closeSheet();toast(\'Nachricht vorbereitet\')">Nachricht schreiben</button>';
+    } else {
+      body += '<button class="btn btn-sec" onclick="closeSheet();toast(\'Check-in angefragt\')">Check-in anfragen</button>';
+    }
+    openSheet(body);
+  };
+
+  // ---------- render ----------
+  function render(){
+    var neu = S.leads.filter(function(l){return l.st==='neu'});
+    var gebucht = S.leads.filter(function(l){return l.st==='gebucht'});
+
+    // badges
+    $('bellCnt').textContent = neu.length;
+    $('bellCnt').style.display = neu.length? 'grid':'none';
+    $('bmpHeute').textContent = neu.length;
+    $('bmpHeute').style.display = neu.length? 'grid':'none';
+
+    // heute
+    $('kNeu').textContent = neu.length;
+    $('kTerm').textContent = gebucht.length;
+
+    $('newLeads').innerHTML = neu.length ? neu.map(function(l){
+      return '<button class="row" onclick="openLead('+l.id+')">'
+        + '<span class="dotmark new"></span>'
+        + '<span class="lead"><span class="t1">'+esc(l.name)+'</span><span class="t2">'+esc(l.ziel)+' · Engpass: '+esc(l.gap)+'</span></span>'
+        + '<span class="tag new">'+esc(l.seit)+'</span>'+CHEV+'</button>';
+    }).join('') : '<div class="empty">Alle kontaktiert. Sauber.</div>';
+
+    $('agenda').innerHTML = (gebucht.map(function(l){
+      return '<button class="row" onclick="openLead('+l.id+')">'
+        + '<span class="time mono">'+esc(l.slot.split(' ')[1])+'</span>'
+        + '<span class="lead"><span class="t1">'+esc(l.name)+'</span><span class="t2">Analysetermin · '+esc(l.slot.split(' ')[0])+'</span></span>'
+        + CHEV+'</button>';
+    }).join('')) + '<div class="row" style="cursor:default"><span class="time mono">18:30</span><span class="lead"><span class="t1">Gruppe Dienstag</span><span class="t2">'+S.kunden.filter(function(k){return !k.neu}).length+' Teilnehmer · Woche 3</span></span></div>';
+
+    var risks = S.kunden.filter(function(k){return k.risiko});
+    $('risks').innerHTML = risks.length ? risks.map(function(k){
+      return '<button class="row" onclick="openKunde('+k.id+')">'
+        + '<span class="dotmark warm"></span>'
+        + '<span class="lead"><span class="t1">'+esc(k.name)+'</span><span class="t2">'+esc(k.risiko)+'</span></span>'+CHEV+'</button>';
+    }).join('') : '<div class="empty">Niemand auffällig.</div>';
+
+    // leads tab
+    $('leadCount').textContent = S.leads.length + ' offen';
+    $('allLeads').innerHTML = S.leads.length ? S.leads.map(function(l){
+      var tag = l.st==='neu' ? '<span class="tag new">neu</span>'
+              : l.st==='gebucht' ? '<span class="tag brand">'+esc(l.slot)+'</span>'
+              : '<span class="tag mute">Termin gehabt</span>';
+      return '<button class="row" onclick="openLead('+l.id+')">'
+        + '<span class="dotmark '+(l.st==='neu'?'new':'warm')+'"></span>'
+        + '<span class="lead"><span class="t1">'+esc(l.name)+'</span><span class="t2">'+esc(l.ziel)+' · '+esc(l.gap)+'</span></span>'
+        + tag+CHEV+'</button>';
+    }).join('') : '<div class="empty">Keine offenen Interessenten.</div>';
+
+    // kunden
+    $('kundenCount').textContent = S.kunden.length + ' aktiv';
+    $('kundenList').innerHTML = S.kunden.map(function(k){
+      return '<button class="row" onclick="openKunde('+k.id+')">'
+        + '<span class="dotmark '+(k.risiko?'warm':'ok')+'"></span>'
+        + '<span class="lead"><span class="t1">'+esc(k.name)+'</span><span class="t2">'+esc(k.paket)+' · Woche '+k.woche+'/8</span></span>'
+        + '<span class="mono" style="font-size:.8rem;font-weight:640;color:var(--money)">'+eur(k.preis)+'</span>'+CHEV+'</button>';
+    }).join('');
+
+    var grpA = S.kunden.filter(function(k){return !k.neu}).length;
+    var grpB = S.kunden.filter(function(k){return k.neu}).length;
+    $('gruppen').innerHTML =
+        '<div class="row" style="cursor:default"><span class="lead"><span class="t1">Dienstag 18:30</span><span class="t2">Woche 3 von 8</span></span><span class="tag brand">'+grpA+' / 6</span></div>'
+      + '<div class="row" style="cursor:default"><span class="lead"><span class="t1">Samstag 09:00</span><span class="t2">Start 17. August</span></span><span class="tag '+(grpB?'money':'mute')+'">'+grpB+' / 6</span></div>';
+
+    // geld
+    var brutto = S.kunden.reduce(function(a,k){return a+k.preis},0);
+    var studio = brutto*.10, sys = brutto*.20, netto = brutto-studio-sys;
+    $('kUms').textContent = eur(brutto);
+    $('gBrutto').textContent = eur(brutto);
+    $('gStudio').textContent = '−'+eur(studio);
+    $('gSys').textContent = '−'+eur(sys);
+    $('gNetto').textContent = eur(netto);
+    $('gStd').textContent = S.stunden.toLocaleString('de-DE',{maximumFractionDigits:1})+' h';
+    $('gProStd').textContent = eur(netto/S.stunden);
+
+    $('sales').innerHTML = S.kunden.map(function(k){
+      return '<div class="row" style="cursor:default"><span class="lead"><span class="t1">'+esc(k.name)+'</span><span class="t2">'+esc(k.paket)+'</span></span><span class="mono" style="font-weight:660">'+eur(k.preis)+'</span></div>';
+    }).join('');
+
+    // studio report
+    $('rUms').textContent = eur(brutto);
+    $('rAnteil').textContent = eur(studio);
+    $('rTerm').textContent = 13 + S.kunden.filter(function(k){return k.neu}).length;
+
+    // Wartende = qualifizierte Nachfrage minus dem, was ein Trainer schafft.
+    // Deckel bei KAPAZITAET — mehr Verkäufe senken die Warteschlange, bis der
+    // Deckel greift. Der Rest bleibt liegen und ist das Argument für Trainer 2.
+    var NACHFRAGE = 13, KAPAZITAET = 8;
+    var bedient = Math.min(S.kunden.length, KAPAZITAET);
+    var unmet = Math.max(0, NACHFRAGE - bedient);
+    $('rCap').textContent = unmet + ' Mitglieder';
+    $('rCapEur').textContent = 'rund ' + eur(unmet*399);
+  }
+
+  render();
+})();
+</script>

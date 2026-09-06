@@ -1,0 +1,706 @@
+<style>
+  :root {
+    --bg: #F2EEE4;
+    --surface: #FCFAF4;
+    --surface-2: #E8E1D0;
+    --ink: #26241E;
+    --ink-soft: #5C574A;
+    --ink-faint: #8B8570;
+    --accent: #3E6A4C;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #DCE6DA;
+    --accent-soft-ink: #2C4A37;
+    --border: #DCD3BC;
+    --danger: #A2503B;
+    --shadow: 0 1px 2px rgba(38,36,30,0.06), 0 12px 32px -16px rgba(38,36,30,0.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1B1A16;
+      --surface: #242220;
+      --surface-2: #2E2C27;
+      --ink: #EEE9DC;
+      --ink-soft: #B7AF9C;
+      --ink-faint: #7C7566;
+      --accent: #74A886;
+      --accent-ink: #12251A;
+      --accent-soft: #2A3A2F;
+      --accent-soft-ink: #B7DCC2;
+      --border: #3B382E;
+      --danger: #C97F68;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 20px 40px -20px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1B1A16;
+    --surface: #242220;
+    --surface-2: #2E2C27;
+    --ink: #EEE9DC;
+    --ink-soft: #B7AF9C;
+    --ink-faint: #7C7566;
+    --accent: #74A886;
+    --accent-ink: #12251A;
+    --accent-soft: #2A3A2F;
+    --accent-soft-ink: #B7DCC2;
+    --border: #3B382E;
+    --danger: #C97F68;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 20px 40px -20px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] {
+    --bg: #F2EEE4;
+    --surface: #FCFAF4;
+    --surface-2: #E8E1D0;
+    --ink: #26241E;
+    --ink-soft: #5C574A;
+    --ink-faint: #8B8570;
+    --accent: #3E6A4C;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #DCE6DA;
+    --accent-soft-ink: #2C4A37;
+    --border: #DCD3BC;
+    --danger: #A2503B;
+    --shadow: 0 1px 2px rgba(38,36,30,0.06), 0 12px 32px -16px rgba(38,36,30,0.28);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    font-weight: 400;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--ink);
+  }
+  .app-shell {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (min-width: 640px) {
+    .app-shell {
+      margin: 2rem auto;
+      min-height: auto;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+  }
+
+  /* ---------- Header + progress curve ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .brand-mark {
+    width: 28px;
+    height: 20px;
+    color: var(--accent);
+    flex: none;
+  }
+  .brand-word {
+    font-family: Georgia, "Iowan Old Style", serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+  .proto-badge {
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .progress-wrap {
+    margin-bottom: 1.75rem;
+  }
+  .progress-curve {
+    width: 100%;
+    height: 34px;
+    display: block;
+    overflow: visible;
+  }
+  .progress-curve .track {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .progress-curve .fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 260;
+    stroke-dashoffset: calc(260 - (260 * var(--progress, 0)));
+    transition: stroke-dashoffset 0.5s ease;
+  }
+  .progress-curve .dot {
+    fill: var(--accent);
+    transition: cx 0.5s ease, cy 0.5s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .progress-curve .fill, .progress-curve .dot { transition: none; }
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    margin-top: 0.35rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Screens ---------- */
+  .screens { flex: 1; display: flex; flex-direction: column; }
+  .screen {
+    display: none;
+    flex-direction: column;
+    gap: 1.4rem;
+    animation: rise 0.35s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen { animation: none; }
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1.headline { font-size: 1.6rem; line-height: 1.25; }
+  h2.headline { font-size: 1.35rem; line-height: 1.3; }
+  .lede { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.55; }
+
+  /* ---------- Option buttons ---------- */
+  .options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .option {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-soft-ink);
+    font-weight: 600;
+  }
+  .option:focus-visible, .btn:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Slider ---------- */
+  .slider-block { display: flex; flex-direction: column; gap: 0.9rem; }
+  .slider-readout {
+    display: flex; align-items: baseline; gap: 0.4rem;
+    font-family: Georgia, serif; color: var(--accent);
+  }
+  .slider-readout .num { font-size: 2.2rem; font-variant-numeric: tabular-nums; line-height: 1; }
+  .slider-readout .of { color: var(--ink-faint); font-size: 0.95rem; font-family: inherit; }
+  input[type="range"] {
+    width: 100%; accent-color: var(--accent);
+  }
+  .slider-scale { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--ink-faint); }
+
+  /* ---------- Text inputs ---------- */
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label { font-size: 0.8rem; color: var(--ink-soft); }
+  .field input[type="text"] {
+    padding: 0.75rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .consent { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.83rem; color: var(--ink-soft); line-height: 1.4; }
+  .consent input { margin-top: 0.2rem; accent-color: var(--accent); }
+
+  /* ---------- Buttons ---------- */
+  .btn-row { display: flex; gap: 0.6rem; margin-top: auto; padding-top: 1.25rem; }
+  .btn {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    flex: 1;
+  }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--border);
+  }
+
+  /* ---------- Result screen ---------- */
+  .result-card {
+    background: var(--accent-soft);
+    color: var(--accent-soft-ink);
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .result-card .tag { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.75; }
+  .result-card p { margin: 0; line-height: 1.55; font-size: 0.95rem; }
+  .stat-row { display: flex; gap: 0.75rem; }
+  .stat {
+    flex: 1; border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+  }
+  .stat .stat-num { font-family: Georgia, serif; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+  .stat .stat-label { font-size: 0.72rem; color: var(--ink-faint); }
+
+  /* ---------- Booking ---------- */
+  .slot-grid { display: flex; flex-direction: column; gap: 0.55rem; }
+  .slot {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.8rem 1rem; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--surface); cursor: pointer; font-size: 0.92rem;
+  }
+  .slot[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+  .slot .day { font-weight: 600; }
+  .slot .time { font-variant-numeric: tabular-nums; color: var(--ink-faint); }
+  .slot[aria-pressed="true"] .time { color: var(--accent-soft-ink); opacity: 0.85; }
+
+  /* ---------- Chat mock ---------- */
+  .chat-bubble {
+    background: var(--surface-2);
+    border-radius: 14px 14px 14px 4px;
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 90%;
+    color: var(--ink);
+  }
+  .chat-meta { font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.3rem; }
+
+  /* ---------- Packages ---------- */
+  .package-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .package {
+    border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem;
+    display: flex; flex-direction: column; gap: 0.5rem; background: var(--surface);
+  }
+  .package.featured { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); position: relative; }
+  .package-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .package-name { font-weight: 600; font-size: 0.95rem; }
+  .package-price { font-family: Georgia, serif; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  .package-desc { font-size: 0.85rem; opacity: 0.85; line-height: 1.45; }
+  .featured-flag {
+    position: absolute; top: -0.55rem; right: 1rem;
+    background: var(--accent); color: var(--accent-ink);
+    font-size: 0.65rem; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 0.2rem 0.5rem; border-radius: 999px;
+  }
+  .package-btn {
+    align-self: flex-start; font-size: 0.82rem; padding: 0.5rem 0.85rem;
+    border-radius: 8px; border: 1px solid currentColor; background: transparent;
+    color: inherit; font-family: inherit; cursor: not-allowed; opacity: 0.7;
+  }
+  .demo-note {
+    font-size: 0.78rem; color: var(--ink-faint); border-top: 1px dashed var(--border);
+    padding-top: 0.9rem; line-height: 1.5;
+  }
+  .demo-note strong { color: var(--ink-soft); }
+
+  .restart-link {
+    background: none; border: none; color: var(--ink-faint); font-size: 0.8rem;
+    text-decoration: underline; cursor: pointer; padding: 0; font-family: inherit;
+    align-self: center; margin-top: 0.5rem;
+  }
+</style>
+
+<div class="app-shell">
+  <div class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 28 20" aria-hidden="true">
+        <path d="M1 17 L9 10 L14 13 L27 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="27" cy="2" r="2.4" fill="currentColor"/>
+      </svg>
+      <span class="brand-word">Formkurve</span>
+    </div>
+    <span class="proto-badge">Prototyp · Vorschau</span>
+  </div>
+
+  <div class="progress-wrap">
+    <svg class="progress-curve" viewBox="0 0 300 34" preserveAspectRatio="none" aria-hidden="true">
+      <path class="track" d="M4 30 C 80 30, 110 8, 150 17 C 190 26, 220 4, 296 4" />
+      <path class="fill" d="M4 30 C 80 30, 110 8, 150 17 C 190 26, 220 4, 296 4" />
+      <circle class="dot" id="progressDot" cx="4" cy="30" r="4.5" />
+    </svg>
+    <div class="progress-label">
+      <span id="progressText">Start</span>
+      <span id="progressCount">0 / 11</span>
+    </div>
+  </div>
+
+  <div class="screens">
+
+    <!-- 0 START -->
+    <section class="screen active" data-screen="start">
+      <div class="eyebrow">Kostenloser Formcheck</div>
+      <h1 class="headline">Trainierst du seit Monaten — und es passiert nichts?</h1>
+      <p class="lede">90 Sekunden, 7 Fragen. Danach weißt du, an welchem von drei häufigen Gründen es bei dir wahrscheinlich liegt — und kannst dir direkt einen kurzen Termin bei deinem Trainer sichern.</p>
+      <div class="stat-row">
+        <div class="stat"><span class="stat-num">90 Sek.</span><span class="stat-label">Dauer</span></div>
+        <div class="stat"><span class="stat-num">0 €</span><span class="stat-label">Kosten</span></div>
+        <div class="stat"><span class="stat-num">7</span><span class="stat-label">Fragen</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goTo(1)">Check starten</button>
+      </div>
+    </section>
+
+    <!-- 1 Q1 ZIEL -->
+    <section class="screen" data-screen="q1">
+      <div class="eyebrow">Frage 1 von 7</div>
+      <h2 class="headline">Was ist dein Ziel?</h2>
+      <div class="options" id="opt-ziel">
+        <button class="option" onclick="selectOpt('ziel','abnehmen',this)">Abnehmen</button>
+        <button class="option" onclick="selectOpt('ziel','muskelaufbau',this)">Muskelaufbau</button>
+        <button class="option" onclick="selectOpt('ziel','fitter',this)">Fitter &amp; belastbarer werden</button>
+        <button class="option" onclick="selectOpt('ziel','ruecken',this)">Rücken &amp; Haltung</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(0)">Zurück</button>
+        <button class="btn btn-primary" id="next-q1" disabled onclick="goTo(2)">Weiter</button>
+      </div>
+    </section>
+
+    <!-- 2 Q2 FREQUENZ -->
+    <section class="screen" data-screen="q2">
+      <div class="eyebrow">Frage 2 von 7</div>
+      <h2 class="headline">Wie oft trainierst du aktuell pro Woche?</h2>
+      <div class="options" id="opt-freq">
+        <button class="option" onclick="selectOpt('freq','0-1',this)">0–1×</button>
+        <button class="option" onclick="selectOpt('freq','2',this)">2×</button>
+        <button class="option" onclick="selectOpt('freq','3',this)">3×</button>
+        <button class="option" onclick="selectOpt('freq','4+',this)">4× oder mehr</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(1)">Zurück</button>
+        <button class="btn btn-primary" id="next-q2" disabled onclick="goTo(3)">Weiter</button>
+      </div>
+    </section>
+
+    <!-- 3 Q3 DABEI SEIT -->
+    <section class="screen" data-screen="q3">
+      <div class="eyebrow">Frage 3 von 7</div>
+      <h2 class="headline">Seit wann bist du im Studio?</h2>
+      <div class="options" id="opt-dabei">
+        <button class="option" onclick="selectOpt('dabei','kurz',this)">Weniger als 3 Monate</button>
+        <button class="option" onclick="selectOpt('dabei','mittel',this)">3–12 Monate</button>
+        <button class="option" onclick="selectOpt('dabei','lang',this)">Länger als 1 Jahr</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(2)">Zurück</button>
+        <button class="btn btn-primary" id="next-q3" disabled onclick="goTo(4)">Weiter</button>
+      </div>
+    </section>
+
+    <!-- 4 Q4 ZUFRIEDENHEIT -->
+    <section class="screen" data-screen="q4">
+      <div class="eyebrow">Frage 4 von 7</div>
+      <h2 class="headline">Wie zufrieden bist du mit deinem Fortschritt?</h2>
+      <div class="slider-block">
+        <div class="slider-readout"><span class="num" id="zufriedenheitNum">5</span><span class="of">/ 10</span></div>
+        <input type="range" min="1" max="10" value="5" id="zufriedenheitRange" oninput="onZufriedenheit(this.value)" />
+        <div class="slider-scale"><span>gar nicht zufrieden</span><span>sehr zufrieden</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(3)">Zurück</button>
+        <button class="btn btn-primary" onclick="goTo(5)">Weiter</button>
+      </div>
+    </section>
+
+    <!-- 5 Q5 HÜRDE -->
+    <section class="screen" data-screen="q5">
+      <div class="eyebrow">Frage 5 von 7</div>
+      <h2 class="headline">Was hält dich am meisten auf?</h2>
+      <div class="options" id="opt-huerde">
+        <button class="option" onclick="selectOpt('huerde','plan',this)">Ich habe keinen klaren Plan</button>
+        <button class="option" onclick="selectOpt('huerde','zeit',this)">Mir fehlt die Zeit</button>
+        <button class="option" onclick="selectOpt('huerde','konstanz',this)">Mir fehlt die Konstanz</button>
+        <button class="option" onclick="selectOpt('huerde','ernaehrung',this)">Ernährung</button>
+        <button class="option" onclick="selectOpt('huerde','unsicherheit',this)">Ich weiß nicht, ob ich es richtig mache</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(4)">Zurück</button>
+        <button class="btn btn-primary" id="next-q5" disabled onclick="goTo(6)">Weiter</button>
+      </div>
+    </section>
+
+    <!-- 6 Q6 ZIELDATUM -->
+    <section class="screen" data-screen="q6">
+      <div class="eyebrow">Frage 6 von 7</div>
+      <h2 class="headline">Bis wann willst du dein Ziel erreichen?</h2>
+      <div class="options" id="opt-zieldatum">
+        <button class="option" onclick="selectOpt('zieldatum','4w',this)">4 Wochen</button>
+        <button class="option" onclick="selectOpt('zieldatum','8w',this)">8 Wochen</button>
+        <button class="option" onclick="selectOpt('zieldatum','3m',this)">3 Monate</button>
+        <button class="option" onclick="selectOpt('zieldatum','offen',this)">Kein festes Datum</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(5)">Zurück</button>
+        <button class="btn btn-primary" id="next-q6" disabled onclick="goTo(7)">Weiter</button>
+      </div>
+    </section>
+
+    <!-- 7 Q7 KONTAKT -->
+    <section class="screen" data-screen="q7">
+      <div class="eyebrow">Frage 7 von 7</div>
+      <h2 class="headline">Wie dürfen wir dir das Ergebnis schicken?</h2>
+      <div class="field">
+        <label for="inpName">Vorname</label>
+        <input type="text" id="inpName" placeholder="z. B. Julia" oninput="onContactInput()" />
+      </div>
+      <div class="field">
+        <label for="inpContact">WhatsApp-Nummer oder E-Mail</label>
+        <input type="text" id="inpContact" placeholder="z. B. 0151 234 567 89" oninput="onContactInput()" />
+      </div>
+      <label class="consent">
+        <input type="checkbox" id="chkPrivacy" onchange="onContactInput()" />
+        Ich habe die Datenschutzhinweise gelesen.
+      </label>
+      <label class="consent">
+        <input type="checkbox" id="chkWhatsapp" onchange="onContactInput()" />
+        Ja, ich möchte per WhatsApp/E-Mail zu meinem Ergebnis und Termin kontaktiert werden.
+      </label>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(6)">Zurück</button>
+        <button class="btn btn-primary" id="next-q7" disabled onclick="showResult()">Ergebnis anzeigen</button>
+      </div>
+    </section>
+
+    <!-- 8 ERGEBNIS -->
+    <section class="screen" data-screen="result">
+      <div class="eyebrow">Deine Auswertung</div>
+      <h2 class="headline" id="resultGreeting">Danke!</h2>
+      <div class="result-card">
+        <span class="tag">Wahrscheinlicher Engpass</span>
+        <p id="resultText">—</p>
+      </div>
+      <p class="lede">Das lässt sich in einer kurzen Bestandsaufnahme klären — 20 Minuten, mit Messung, kostenlos.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goTo(9)">Termin auswählen</button>
+      </div>
+    </section>
+
+    <!-- 9 BUCHUNG -->
+    <section class="screen" data-screen="booking">
+      <div class="eyebrow">Analysetermin</div>
+      <h2 class="headline">Wann passt es dir?</h2>
+      <p class="lede">20 Minuten, im Studio, mit deinem Trainer.</p>
+      <div class="slot-grid" id="slotGrid">
+        <button class="slot" onclick="selectSlot('Do · 18:30 Uhr',this)"><span class="day">Donnerstag</span><span class="time">18:30 Uhr</span></button>
+        <button class="slot" onclick="selectSlot('Fr · 17:00 Uhr',this)"><span class="day">Freitag</span><span class="time">17:00 Uhr</span></button>
+        <button class="slot" onclick="selectSlot('Sa · 10:00 Uhr',this)"><span class="day">Samstag</span><span class="time">10:00 Uhr</span></button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo(8)">Zurück</button>
+        <button class="btn btn-primary" id="next-booking" disabled onclick="goTo(10)">Termin bestätigen</button>
+      </div>
+    </section>
+
+    <!-- 10 BESTÄTIGUNG -->
+    <section class="screen" data-screen="confirm">
+      <div class="eyebrow">Termin gebucht</div>
+      <h2 class="headline">Bis <span id="confirmSlot">bald</span>.</h2>
+      <div class="chat-bubble">
+        Hi <span id="chatName">👋</span>, hier ist dein Trainer aus dem Studio. Deine Auswertung ist da — bei dir sieht es nach <span id="chatEngpass">—</span> aus. Ich hab <span id="chatSlot">deinen Termin</span> für dich reserviert, Messung inklusive. Bis dann!
+        <div class="chat-meta">WhatsApp · gerade eben · Vorschau</div>
+      </div>
+      <p class="lede">Du bekommst 24 h und 2 h vorher automatisch eine Erinnerung.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goTo(11)">Was passiert im Termin? →</button>
+      </div>
+    </section>
+
+    <!-- 11 PREVIEW ANGEBOT -->
+    <section class="screen" data-screen="preview">
+      <div class="eyebrow">Vorschau · im Termin</div>
+      <h2 class="headline">Das schlägt dir dein Trainer vor</h2>
+      <p class="lede">Nach der Messung bekommst du eines von drei Angeboten — passend zu deinem Ziel und deiner Zeit.</p>
+      <div class="package-list">
+        <div class="package">
+          <div class="package-head"><span class="package-name">Kickstart · 4 Wochen</span><span class="package-price">199 €</span></div>
+          <p class="package-desc">Plan + 2 Gruppeneinheiten + 1 Check-in/Woche.</p>
+          <button class="package-btn" disabled>Demo – noch nicht verknüpft</button>
+        </div>
+        <div class="package featured">
+          <span class="featured-flag">Empfohlen</span>
+          <div class="package-head"><span class="package-name">Transformation · 8 Wochen</span><span class="package-price">399 €</span></div>
+          <p class="package-desc">Feste Kleingruppe, Messung vorher/nachher, wöchentlicher Check-in.</p>
+          <button class="package-btn" disabled>Demo – noch nicht verknüpft</button>
+        </div>
+        <div class="package">
+          <div class="package-head"><span class="package-name">Transformation Plus · 12 Wochen</span><span class="package-price">699 €</span></div>
+          <p class="package-desc">Wie oben, plus 3× 1:1-Personal-Training.</p>
+          <button class="package-btn" disabled>Demo – noch nicht verknüpft</button>
+        </div>
+      </div>
+      <div class="demo-note">
+        <strong>Prototyp-Hinweis:</strong> Diese Buttons sind Platzhalter. Sobald du Stripe-Test-Payment-Links erstellt hast, werden sie live verknüpft — dann kann hier echt (im Testmodus) bezahlt werden, ohne dass Geld fließt.
+      </div>
+      <button class="restart-link" onclick="goTo(0)">↻ Demo von vorne zeigen</button>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  var order = ['start','q1','q2','q3','q4','q5','q6','q7','result','booking','confirm','preview'];
+  var answers = { ziel:null, freq:null, dabei:null, zufriedenheit:5, huerde:null, zieldatum:null, name:'', kontakt:'' };
+
+  var engpassText = {
+    plan: "Struktur. Du trainierst, aber ohne roten Faden — jede Einheit ist eher ein Zufallsprogramm als ein Baustein. Das ist der häufigste Grund, warum sich nach Monaten nichts verändert.",
+    zeit: "Frequenz. Nicht die Intensität fehlt, sondern die Regelmäßigkeit. Zwei feste Termine pro Woche schlagen fünf spontane.",
+    konstanz: "Rückmeldung. Ohne festen Termin und jemanden, der nachfragt, verliert sich Motivation nach drei, vier Wochen — das ist normal, kein Charakterfehler.",
+    ernaehrung: "Ernährungsrahmen. Das Training passt, aber ohne einfache Regeln für den Alltag bleibt der Rest Zufall.",
+    unsicherheit: "Rückmeldung zur eigenen Technik und Belastung. Du trainierst im Blindflug — eine kurze Messung würde dir zeigen, woran es wirklich liegt."
+  };
+
+  function el(id) { return document.getElementById(id); }
+
+  function goTo(index) {
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    var id = order[index];
+    document.querySelector('.screen[data-screen="' + id + '"]').classList.add('active');
+    var frac = index / (order.length - 1);
+    document.documentElement.style.setProperty('--progress', frac.toFixed(3));
+    updateDot(frac);
+    el('progressCount').textContent = index + ' / ' + (order.length - 1);
+    el('progressText').textContent = stepLabel(id);
+    window.scrollTo(0, 0);
+  }
+
+  function stepLabel(id) {
+    var labels = {
+      start: 'Start', q1: 'Ziel', q2: 'Frequenz', q3: 'Dabei seit', q4: 'Zufriedenheit',
+      q5: 'Hürde', q6: 'Zieldatum', q7: 'Kontakt', result: 'Ergebnis', booking: 'Termin',
+      confirm: 'Bestätigt', preview: 'Angebot'
+    };
+    return labels[id] || id;
+  }
+
+  var pathPoints = [
+    [4,30],[24,29],[48,26],[72,20],[96,16],[120,15],[144,17],[168,20],
+    [192,16],[216,9],[240,6],[268,5],[296,4]
+  ];
+  function updateDot(frac) {
+    var pos = Math.min(pathPoints.length - 1, Math.round(frac * (pathPoints.length - 1)));
+    var p = pathPoints[pos];
+    el('progressDot').setAttribute('cx', p[0]);
+    el('progressDot').setAttribute('cy', p[1]);
+  }
+
+  function selectOpt(group, value, buttonEl) {
+    answers[group] = value;
+    var container = buttonEl.parentElement;
+    Array.prototype.forEach.call(container.children, function(b){ b.setAttribute('aria-pressed','false'); });
+    buttonEl.setAttribute('aria-pressed','true');
+    var nextBtn = el('next-' + currentQ(group));
+    if (nextBtn) nextBtn.disabled = false;
+  }
+
+  function currentQ(group) {
+    var map = { ziel:'q1', freq:'q2', dabei:'q3', huerde:'q5', zieldatum:'q6' };
+    return map[group];
+  }
+
+  function onZufriedenheit(v) {
+    answers.zufriedenheit = v;
+    el('zufriedenheitNum').textContent = v;
+  }
+
+  function onContactInput() {
+    var name = el('inpName').value.trim();
+    var contact = el('inpContact').value.trim();
+    var privacy = el('chkPrivacy').checked;
+    var whatsapp = el('chkWhatsapp').checked;
+    answers.name = name; answers.kontakt = contact;
+    el('next-q7').disabled = !(name.length > 0 && contact.length > 0 && privacy && whatsapp);
+  }
+
+  function showResult() {
+    el('resultGreeting').textContent = (answers.name ? 'Danke, ' + answers.name + '.' : 'Danke!');
+    el('resultText').textContent = engpassText[answers.huerde] || engpassText.plan;
+    goTo(8);
+  }
+
+  var selectedSlotLabel = null;
+  function selectSlot(label, buttonEl) {
+    selectedSlotLabel = label;
+    var container = el('slotGrid');
+    Array.prototype.forEach.call(container.children, function(b){ b.setAttribute('aria-pressed','false'); });
+    buttonEl.setAttribute('aria-pressed','true');
+    el('next-booking').disabled = false;
+  }
+
+  // wire confirm screen before showing it
+  var originalGoTo = goTo;
+  goTo = function(index) {
+    if (order[index] === 'confirm') {
+      el('confirmSlot').textContent = selectedSlotLabel || 'bald';
+      el('chatSlot').textContent = selectedSlotLabel || 'deinen Termin';
+      el('chatName').textContent = answers.name || '';
+      el('chatEngpass').textContent = engpassText[answers.huerde] ? engpassKeyword(answers.huerde) : 'einem strukturellen Thema';
+    }
+    originalGoTo(index);
+  };
+
+  function engpassKeyword(key) {
+    var kw = { plan: 'fehlender Struktur', zeit: 'zu wenig Frequenz', konstanz: 'fehlender Konstanz', ernaehrung: 'der Ernährung', unsicherheit: 'Unsicherheit bei der Ausführung' };
+    return kw[key] || 'einem strukturellen Thema';
+  }
+
+  document.documentElement.style.setProperty('--progress', '0');
+  updateDot(0);
+</script>
