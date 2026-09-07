@@ -12,6 +12,12 @@ die dieses Projekt ohne Rückfragen weiterführen soll. Lies es komplett, bevor 
 > Auf der Kundenseite gibt es statt einem Produkt **drei** (399 € Programm, 60 €/Std. Personal
 > Training, 40 €/Std. Begleitservice), alle Preise **brutto inkl. MwSt.**, und die Zahlung läuft
 > über **Emilios eigene Bezahllinks** (Abschnitt 5a).
+>
+> **Nachtrag vom 07.09.2026:** Das GitHub-Repo `rebellmitherz/formkurve` ist jetzt live geschaltet
+> (öffentlich) und **GitHub Pages ist die neue primäre Adresse** — nicht mehr der Claude-Artifact-Link.
+> Der gedruckte QR-Code zeigt jetzt auf `https://rebellmitherz.github.io/formkurve/`. Lies **Abschnitt 3a**,
+> bevor du an einer der beiden App-Dateien etwas änderst — der Veröffentlichungsweg hat sich geändert
+> (`git push` statt Claude-Artifact-Republish).
 
 ---
 
@@ -66,23 +72,73 @@ fitness-trainer-system/
 
 Zusätzlich, **nicht** im Projektordner:
 - `Desktop\03_WEBSITES\Formkurve-Aushang-QR.html` + `.pdf` — druckfertiges A4-Poster mit QR-Code, das im
-  Studio hängen soll. Enthält einen selbst geschriebenen QR-Encoder (Byte-Modus, ECC L). Zeigt fest auf die
-  Kundenseiten-URL — unverändert richtig, muss nicht neu gedruckt werden.
+  Studio hängen soll. Enthält einen selbst geschriebenen QR-Encoder (Byte-Modus, ECC L). Zeigt seit
+  07.09.2026 auf die GitHub-Pages-Adresse (Abschnitt 3a) — **vor jedem (Neu-)Druck prüfen, dass Pages
+  tatsächlich live ist**, sonst zeigt der gedruckte Code auf eine 404-Seite.
 
-### Veröffentlichte Artifact-Links (Claude-Artifacts — **IDs dürfen sich NIE ändern**)
+### 3a. Wo die App tatsächlich läuft — Stand seit 07.09.2026
+
+**GitHub Pages ist jetzt die primäre, laufende Adresse — nicht mehr der Claude-Artifact-Link.** Emilio
+hat sich bewusst dafür entschieden, die Adresse selbst zu besitzen statt an eine Claude-Artifact-ID
+gebunden zu sein (die Artifact-„Shared version"-Falle unten war ein Auslöser dafür).
+
+```
+fitness-trainer-system/
+├── index.html                 ← NEU: reine Weiterleitung → prototype/formkurve-mitglied-einstieg.html
+│                                  Ziel des QR-Codes: https://rebellmitherz.github.io/formkurve/
+└── trainer/
+    └── index.html              ← NEU: reine Weiterleitung → prototype/formkurve-komplett.html
+                                    https://rebellmitherz.github.io/formkurve/trainer/
+```
+
+Diese beiden Dateien enthalten **keinen eigenen Inhalt**, nur `<meta http-equiv="refresh">` +
+`location.replace()` auf die echte Datei in `prototype/`. Grund: Die App-Dateien selbst (~1,8 MB, Fotos
+als Base64 eingebettet) bleiben an einer einzigen Stelle — sie hier zu duplizieren hieße, bei jeder
+Änderung zwei Kopien pflegen zu müssen.
+
+**Workflow ab jetzt bei jeder Änderung an einer der beiden App-Dateien:**
+```
+git add -A && git commit -m "..." && git push
+```
+GitHub Pages baut automatisch aus dem `main`-Branch neu — normalerweise binnen 1–2 Minuten sichtbar.
+**Kein manueller Veröffentlichungsschritt mehr nötig**, anders als beim Claude-Artifact-Weg unten.
+
+| Was | Adresse |
+|---|---|
+| **Kundenseite** (Ziel des QR-Codes) | `https://rebellmitherz.github.io/formkurve/` |
+| Innenwerkzeug für Kadri (nie an Kunden geben) | `https://rebellmitherz.github.io/formkurve/trainer/` |
+| Quelltext (Versionsverwaltung, privat lesbar für jeden — Repo ist **öffentlich**) | `https://github.com/rebellmitherz/formkurve` |
+
+**GitHub Pages muss einmalig manuell eingeschaltet werden** (Repo → Settings → Pages → Source: „Deploy
+from a branch" → Branch `main`, Ordner `/ (root)` → Save) — das kann keine KI für Emilio anklicken, weil
+das eine Einstellung in seinem eigenen GitHub-Konto ist, nicht ein Git-Befehl.
+
+**Warum GitHub Pages und nicht Vercel:** Die App ist eine reine statische Datei ohne Server, ohne
+Build-Schritt — genau dafür ist GitHub Pages gemacht, kostenlos, ohne zusätzliches Konto. Vercel lohnt
+sich erst, wenn eines der offenen Punkte aus Abschnitt 8 ein echtes Backend braucht (Speicherung,
+Termin-Sperre, Benachrichtigung an Kadri) — das kann GitHub Pages grundsätzlich nie, weil es für immer
+rein statisch bleibt.
+
+### Veröffentlichte Artifact-Links (Claude-Artifacts — jetzt Backup/Zweitversion, nicht mehr das QR-Ziel)
 
 | App | Artifact-URL |
 |---|---|
-| **Kundenseite** (Ziel des QR-Codes, die einzige Seite für Mitglieder) | `https://claude.ai/code/artifact/6b8bbca2-d114-48ce-9d3b-e71749374447` |
-| Innenwerkzeug für Kadri (nie an Kunden geben) | `https://claude.ai/code/artifact/a1f9a8dc-4e44-4988-b6de-7c2eea3bf0ea` |
+| Kundenseite | `https://claude.ai/code/artifact/6b8bbca2-d114-48ce-9d3b-e71749374447` |
+| Innenwerkzeug für Kadri | `https://claude.ai/code/artifact/a1f9a8dc-4e44-4988-b6de-7c2eea3bf0ea` |
 
-Beim Veröffentlichen **immer** `url:` mit der bestehenden ID angeben, sonst entsteht eine neue URL und der
-gedruckte QR-Code zeigt ins Leere.
+Diese Links funktionieren weiterhin, sind aber **nicht mehr das Ziel des gedruckten QR-Codes** — nur noch
+eine zweite, unabhängige Kopie. Sie laufen aus dem Gleichschritt, sobald `prototype/`-Dateien geändert
+und nur nach GitHub gepusht (nicht auch als Artifact neu veröffentlicht) werden — das ist jetzt in
+Ordnung so, muss aber bewusst sein, falls doch mal jemand diesen Link herausgibt.
 
-**Bekannte Support-Falle:** Im Claude-Teilen-Dialog gibt es zwei getrennte Einstellungen — „General access"
-(wer darf zugreifen) und „Shared version" (welcher Snapshot wird angezeigt). Ein Betrachter kann trotz
-korrekter Freigabe eine wochenalte Version sehen, wenn „Shared version" auf eine feste Nummer statt
-„Latest" steht. Bei jeder „ich sehe die Änderung nicht"-Meldung zuerst das prüfen.
+Falls doch noch veröffentlicht wird: Beim Veröffentlichen **immer** `url:` mit der bestehenden ID
+angeben, sonst entsteht eine neue, andere URL.
+
+**Bekannte Support-Falle (Claude-Artifacts):** Im Teilen-Dialog gibt es zwei getrennte Einstellungen —
+„General access" (wer darf zugreifen) und „Shared version" (welcher Snapshot wird angezeigt). Ein
+Betrachter kann trotz korrekter Freigabe eine wochenalte Version sehen, wenn „Shared version" auf eine
+feste Nummer statt „Latest" steht. Genau das ist am 07.09.2026 beim Innenwerkzeug passiert — ein Grund
+mehr, warum GitHub Pages jetzt die primäre Adresse ist: dort gibt es diese Falle nicht.
 
 ---
 

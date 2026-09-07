@@ -1,0 +1,27 @@
+<!doctype html>
+<!--
+  Reine Weiterleitung, kein eigener Inhalt.
+
+  Grund: GitHub Pages braucht eine kurze, feste Adresse fuer den QR-Code im
+  Studio (https://rebellmitherz.github.io/formkurve/). Die eigentliche Seite
+  bleibt an ihrem Platz in prototype/ — dort liegt die einzige Kopie der
+  1,8-MB-Datei mit allen eingebetteten Fotos. Sie hier zu duplizieren wuerde
+  bei jeder Aenderung zwei Stellen zum Pflegen bedeuten, genau das Problem,
+  das die App selbst schon einmal hatte (siehe UEBERGABE.md Abschnitt 4).
+
+  Meta-Refresh ist der zuverlaessigste Weg: funktioniert auch, wenn
+  JavaScript blockiert ist. Das kleine Skript darunter ist nur ein
+  Sofort-Fallback fuer den Fall, dass ein Browser das Meta-Tag ignoriert.
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=prototype/formkurve-mitglied-einstieg.html">
+  <title>Formkurve</title>
+  <script>location.replace('prototype/formkurve-mitglied-einstieg.html');</script>
+</head>
+<body>
+  <p>Weiterleitung … falls sich nichts tut,
+    <a href="prototype/formkurve-mitglied-einstieg.html">hier klicken</a>.</p>
+</body>
+</html>
