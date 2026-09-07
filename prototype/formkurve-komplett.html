@@ -1510,8 +1510,12 @@
      Der QR zeigt auf die Kundenseite — die einzige Seite, die ein Mitglied je
      sieht. Diese Datei hier enthält bewusst KEINEN Kundenweg mehr: kein
      Rollenwechsel, kein Vorschaumodus, keine zweite Zahlung. Wer das je wieder
-     einbaut, hat zwei Kundenseiten und zwei Wahrheiten. */
-  var MEMBER_ENTRY_URL = 'https://claude.ai/code/artifact/6b8bbca2-d114-48ce-9d3b-e71749374447';
+     einbaut, hat zwei Kundenseiten und zwei Wahrheiten.
+     Seit 07.09.2026: GitHub Pages statt Claude-Artifact-Link (siehe
+     UEBERGABE.md Abschnitt 3a) — bei einem erneuten Adresswechsel auch den
+     gedruckten Aushang (Desktop\03_WEBSITES\Formkurve-Aushang-QR.html, eigene
+     Kopie desselben Encoders) nicht vergessen. */
+  var MEMBER_ENTRY_URL = 'https://rebellmitherz.github.io/formkurve/';
   (function init(){
     var el = $('qrHold');
     var svg = qrSvg(MEMBER_ENTRY_URL);
