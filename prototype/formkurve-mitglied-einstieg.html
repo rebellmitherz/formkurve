@@ -1,4 +1,22 @@
+<!doctype html>
+<!--
+  Diese Datei lief ursprünglich nur eingebettet in der Claude-Artifact-Hülle,
+  die automatisch <!doctype>, <head>, charset und vor allem das
+  viewport-Meta-Tag mitliefert. Seit 07.09.2026 läuft sie zusätzlich
+  eigenständig über GitHub Pages (siehe UEBERGABE.md Abschnitt 3a) — dort
+  fehlt diese Hülle komplett. Ohne eigenes viewport-Meta-Tag nehmen mobile
+  Browser eine virtuelle Desktop-Breite (~980px) an und berechnen `vh`
+  entsprechend riesig, wodurch `.app{height:100vh}` ein Vielfaches der
+  echten Bildschirmhöhe wird — sichtbar als riesige leere Fläche vor dem
+  "Check starten"-Knopf. Deshalb jetzt eigenes <head> mit charset + viewport.
+-->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Formkurve</title>
+</head>
+<body>
 <style>
   :root{
     --bg:#0B0A07; --bg2:#12100B; --surf:#17150F; --surf2:#1D1A12; --sunk:#221E15; --deep:#2B2619;
@@ -2187,3 +2205,5 @@
   if(!resumeOrder()) go('v-hook');
 })();
 </script>
+</body>
+</html>
