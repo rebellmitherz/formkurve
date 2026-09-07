@@ -562,7 +562,8 @@
         <p class="lede" id="doneT">—</p>
       </div>
       <div class="dock">
-        <button class="btn" id="doneBtn">App öffnen</button>
+        <button class="btn" id="doneWaBtn">📲 Kadri per WhatsApp Bescheid geben</button>
+        <button class="btn ghost" id="doneBtn" style="margin-top:.5rem">App öffnen</button>
         <button class="btn ghost" id="doneBtn2" style="margin-top:.5rem;display:none" onclick="showOffer(true)">Noch etwas buchen</button>
       </div>
     </section>
@@ -691,6 +692,12 @@
   var P={name:'',goal:null,sex:null,age:34,cm:170,kg:78,days:null,exp:null,blocker:null};
   var R=null,DAYS=null,SLOTS=[],FOOD=null,foodDay='TT',animTimer=null;
   var TRAINER='Kadri B.',STUDIO='HappyFit Dillingen';
+  /* Solange es keinen Server gibt, kommt eine Buchung nur bei Kadri an, wenn
+     die Kundin/der Kunde selbst auf "Senden" tippt — WhatsApp füllt die
+     Nachricht vor, verschickt sie aber nie von selbst (kann eine reine
+     Webseite technisch auch nicht, ohne eigenes Backend). Nummer im
+     internationalen Format ohne '+', wie wa.me es verlangt. */
+  var TRAINER_WA='4915771437801';
 
   function $(i){return document.getElementById(i)}
   function n1(n){return n.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})}
@@ -2015,13 +2022,36 @@
   };
 
   /* ============ BESTÄTIGUNG ============ */
+  /* Vorausgefüllte WhatsApp-Nachricht an Kadri — enthält alles, was er
+     braucht, um die Buchung ohne Rückfrage einzuplanen. */
+  function waUrl(text){ return 'https://wa.me/'+TRAINER_WA+'?text='+encodeURIComponent(text); }
+  function buildWaText(){
+    var pr=PRODUCTS[CART.key], who=P.name?P.name:'Ohne Namen angegeben';
+    var lines=SLOTS.map(function(s){return LONG[DE[s.d]]+' '+s.t+' Uhr'});
+    if(pr.hours){
+      return 'Neue Buchung über die Formkurve-Seite:\n'
+        +who+' — '+CART.qty+'× '+pr.name+'\n'
+        +'Termin'+(lines.length>1?'e':'')+': '+lines.join(', ')+'\n'
+        +'Gesamt: '+eur2(pr.price*CART.qty);
+    }
+    return 'Neue Anmeldung über die Formkurve-Seite:\n'
+      +who+' — 8-Wochen-Transformation\n'
+      +P.days+'× pro Woche, erster Termin (Kleingruppe): '+(lines[0]||'—')+'\n'
+      +'Gesamt: '+eur0(pr.price);
+  }
+  /* Bestmöglicher Sofort-Versuch, WhatsApp direkt zu öffnen — funktioniert
+     nur, wenn dieser Aufruf noch in derselben Klickkette steckt wie der
+     Bezahlknopf (Browser blocken window.open() sonst als Popup). Nach einer
+     Rückkehr vom echten Bezahllink (kein Klick, nur ein Seitenaufbau) klappt
+     das nicht mehr — deshalb bleibt der Knopf unten IMMER die verlässliche,
+     sichtbare Möglichkeit, unabhängig davon, ob der Sofort-Versuch geht. */
   function showDone(){
     var pr=PRODUCTS[CART.key], fn=(P.name||'').split(' ')[0];
     if(pr.hours){
       var li=SLOTS.map(function(s){return LONG[DE[s.d]]+' um '+s.t+' Uhr'});
       $('doneH').textContent=fn?('Termin steht, '+fn+'.'):'Termin steht.';
       $('doneT').textContent=(CART.qty===1?'Dein Termin: ':'Deine Termine: ')+li.join(', ')
-        +'. '+TRAINER+' hat deine Buchung und meldet sich, falls etwas dazwischenkommt.';
+        +'. Tipp unten auf WhatsApp, damit '+TRAINER+' sofort Bescheid weiß.';
       $('doneBtn').textContent='Fertig';
       $('doneBtn').onclick=function(){ go('v-hook') };
       $('doneBtn2').style.display='';
@@ -2032,12 +2062,15 @@
       var f=SLOTS[0];
       $('doneH').textContent=fn?('Du bist dabei, '+fn+'.'):'Du bist dabei.';
       $('doneT').textContent=(f?'Dein erstes gemeinsames Training ist am '+LONG[DE[f.d]]+' um '+f.t+' Uhr. ':'')
-        +'Trainingsplan und Ernährungsplan liegen ab sofort in deiner App.';
+        +'Trainingsplan und Ernährungsplan liegen ab sofort in deiner App. Tipp unten auf WhatsApp, damit '+TRAINER+' sofort Bescheid weiß.';
       $('doneBtn').textContent='App öffnen';
       $('doneBtn').onclick=function(){ openApp() };
       $('doneBtn2').style.display='none';
     }
+    var url=waUrl(buildWaText());
+    $('doneWaBtn').onclick=function(){ window.open(url,'_blank','noopener'); };
     go('v-done');
+    try{ window.open(url,'_blank','noopener'); }catch(e){}
   }
 
   /* ============ APP ============ */
