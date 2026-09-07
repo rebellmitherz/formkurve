@@ -355,10 +355,13 @@ Silhouette, echte Fotos, keine Handzeichnung mehr sichtbar für den Nutzer.
 **Technisch — für ein echtes Produkt, nicht nur Demo:**
 6. **Keine Speicherung.** Tab zu → alles weg. Keine Datenbank. Bei Stundenbuchungen wiegt das
    schwerer als beim 399er: Kadri erfährt sonst nie, dass jemand gebucht hat.
-7. **Keine Benachrichtigung an Kadri.** Bei einer Stundenbuchung der wichtigste fehlende Teil:
-   wer, wann, was. Die Seite sagt dem Kunden „Kadri hat deine Buchung" — das stimmt erst, wenn
-   dieser Weg existiert. **Bis dahin muss Kadri jede Buchung über die Zahlung mitbekommen**
-   (deshalb hängt `fk=<produkt>-<stunden>` am Bezahllink).
+7. ~~Keine Benachrichtigung an Kadri~~ **Erledigt (07.09.2026):** Nach jeder Buchung öffnet sich ein
+   vorausgefüllter WhatsApp-Link an Kadris Nummer (`TRAINER_WA` in `formkurve-mitglied-einstieg.html`,
+   aktuell `4915771437801`) — die Kundin/der Kunde muss nur noch auf Senden tippen. Kein Server kann
+   eine reine Webseite technisch automatisch verschicken lassen; das ist die bestmögliche Lösung ohne
+   Backend. Der Knopf ist immer sichtbar auf dem Bestätigungsbildschirm, ein Sofort-Öffnen-Versuch läuft
+   zusätzlich im Hintergrund (klappt nur direkt nach einem Klick, nicht nach einer Rückkehr vom echten
+   Bezahllink — Browser blocken `window.open()` sonst als Popup).
 8. **Bezahllinks noch nicht eingetragen** (`PAY` in Abschnitt 5a). Bis dahin Demo-Modus.
 9. **Keine echten Verfügbarkeiten.** `TIMES` ist Platzhalter, und nichts sperrt einen Slot:
    zwei Leute können denselben Termin buchen. Beim 399er einmalig ärgerlich, bei Stundenbuchungen
