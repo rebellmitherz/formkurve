@@ -1837,8 +1837,12 @@
      damit gibt es die Auswahl-Logik nur einmal. */
   var DE=['Mo','Di','Mi','Do','Fr','Sa','So'];
   var LONG={Mo:'Montag',Di:'Dienstag',Mi:'Mittwoch',Do:'Donnerstag',Fr:'Freitag',Sa:'Samstag',So:'Sonntag'};
-  var TIMES={0:['17:00','18:30','20:00'],1:['07:00','17:00','18:30'],2:['17:00','18:30','20:00'],
-    3:['07:00','17:00','18:30'],4:['16:00','17:30',''],5:['09:00','10:30',''],6:['','','']};
+  /* Kadris tatsächliche Verfügbarkeit (Stand 14.09.2026, von Emilio bestätigt):
+     Montag bis Freitag, morgens 8-11 Uhr. Kein Training am Wochenende. Drei
+     Startzeiten je Wochentag, jede Sitzung passt mit einer Stunde noch komplett
+     ins Fenster (10:00 Uhr startend endet um 11:00 Uhr). */
+  var TIMES={0:['08:00','09:00','10:00'],1:['08:00','09:00','10:00'],2:['08:00','09:00','10:00'],
+    3:['08:00','09:00','10:00'],4:['08:00','09:00','10:00'],5:['','',''],6:['','','']};
   var SCHED={cap:0,grid:'weekGrid',list:'pickedList',btn:'schedBtn',group:true};
 
   function drawGrid(){
