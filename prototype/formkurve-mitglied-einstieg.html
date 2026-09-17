@@ -514,7 +514,7 @@
         <h1 class="h-lg rise" style="animation-delay:.08s;margin:.6rem 0 .8rem" id="bookH">Wann passt es dir?</h1>
         <p class="lede rise" style="animation-delay:.16s" id="bookSub">—</p>
 
-        <div class="rise" style="animation-delay:.2s">
+        <div class="rise" style="animation-delay:.2s" id="hoursBox">
           <div class="sect">Wie viele Stunden?</div>
           <div class="num">
             <button onclick="setHours(-1)" aria-label="Eine Stunde weniger">−</button>
@@ -1712,16 +1712,28 @@
      komplett testbar. Sobald ein Link eingetragen ist, führt der Bezahlknopf
      dorthin und der Demo-Hinweis verschwindet von selbst.
 
-     Stundenprodukte: im Bezahllink die Menge anpassbar machen. Wer die
-     Stundenzahl direkt übergeben will, schreibt {n} in den Link, z. B.
-     'https://…/pt?quantity={n}' — {n} wird durch die gewählte Stundenzahl
-     ersetzt. Zusätzlich hängt die Seite '&fk=<produkt>-<stunden>' an, damit in
-     der Zahlung erkennbar ist, was gebucht wurde.
+     Stundenprodukte (pt/beg): Stripe-Bezahllinks können die Stundenzahl NICHT
+     per URL vorausgefüllt bekommen (kein '?quantity='-Parameter bei Stripe
+     Payment Links, Stand 09/2026), und in Emilios Stripe-Account war "Menge
+     anpassbar" beim Anlegen nicht auffindbar. Deshalb vorerst (14.09.2026)
+     bewusst auf 1 Stunde pro Kauf begrenzt: CART.qty wird in buildBooking()
+     fest auf 1 gesetzt, der Mengen-Stepper (#hoursBox) ist ausgeblendet.
+     Will ein Kunde mehrere Stunden, macht er mehrere Einzelkäufe. Sobald ein
+     Weg gefunden ist, in Stripe echte Mengenanpassung zu aktivieren: Limit in
+     setHours() von 1 wieder hochsetzen, hoursBox wieder einblenden. {n} bliebe
+     als Platzhalter nutzbar, falls ein anderer Anbieter URL-Vorbefüllung kann.
+     Zusätzlich hängt die Seite '&fk=<produkt>-<stunden>' an, damit in der
+     Zahlung erkennbar ist, was gebucht wurde (rein informativ, Stripe nutzt es
+     nicht selbst).
 
      Rückkehr: als Erfolgs-URL im Bezahllink diese Seite mit '?bezahlt=1'
      eintragen. Dann zeigt sie beim Zurückkommen sofort die Bestätigung mit den
      gewählten Terminen, statt wieder bei null anzufangen. */
-  var PAY={prog:'',pt:'',beg:''};
+  var PAY={
+    prog:'https://buy.stripe.com/dRm4gBdwM8DL0b22YF8og0l',
+    pt:'https://buy.stripe.com/fZueVffEUcU1f5WgPv8og0m',
+    beg:'https://buy.stripe.com/5kQdRb9gwcU10b28iZ8og0n'
+  };
 
   var PRODUCTS={
     prog:{key:'prog',name:'8-Wochen-Transformation',price:399,per:'einmalig · keine Laufzeit',
@@ -1848,14 +1860,20 @@
     drawGrid();
     go('v-sched');
   }
+  /* Bezahllinks sind aktuell Stripe-Festpreislinks ohne anpassbare Menge —
+     deshalb vorerst nur 1 Stunde pro Kauf buchbar (Mengen-Stepper ausgeblendet).
+     Sobald "Menge anpassbar" in Stripe gefunden/aktiviert ist, hoursBox wieder
+     einblenden und die Obergrenze in setHours() von 1 auf z. B. 10 hochsetzen. */
   function buildBooking(){
     var pr=PRODUCTS[CART.key];
+    CART.qty=1;
     SCHED={cap:CART.qty,grid:'bookGrid',list:'bookList',btn:'bookBtn',group:false};
     SLOTS=[];
     $('bookH').textContent=pr.name;
     $('bookSub').textContent=(pr.key==='pt'
-      ? 'Wie viele Einzelstunden willst du buchen — und wann? Eine Stunde, ein Termin.'
-      : 'Wie viele Stunden Begleitung willst du buchen — und wann? Eine Stunde, ein Termin.');
+      ? 'Eine Einzelstunde, ein Termin. Wann passt es dir?'
+      : 'Eine Stunde Begleitung, ein Termin. Wann passt es dir?');
+    $('hoursBox').style.display='none';
     $('hVal').textContent=CART.qty;
     hoursNote();
     drawGrid();
@@ -1863,11 +1881,10 @@
   }
   function hoursNote(){
     var pr=PRODUCTS[CART.key];
-    $('hNote').textContent=CART.qty+' × '+eur0(pr.price)+' = '+eur0(CART.qty*pr.price)+' inkl. MwSt. '
-      +'Wähl unten '+CART.qty+' '+(CART.qty===1?'Termin':'Termine')+'.';
+    $('hNote').textContent=eur0(pr.price)+' inkl. MwSt. Wähl unten deinen Termin.';
   }
   window.setHours=function(d){
-    var q=Math.min(10,Math.max(1,CART.qty+d));
+    var q=Math.min(1,Math.max(1,CART.qty+d));
     if(q===CART.qty) return;
     CART.qty=q; SCHED.cap=q; $('hVal').textContent=q;
     if(SLOTS.length>q) SLOTS=SLOTS.slice(0,q);

@@ -1,9 +1,25 @@
 # Übergabeprotokoll — Formkurve
 
-**Stand: 06.09.2026.** Dieses Dokument ist für eine andere KI (oder eine spätere Sitzung von mir) gedacht,
-die dieses Projekt ohne Rückfragen weiterführen soll. Lies es komplett, bevor du irgendetwas änderst.
+**Stand: 14.09.2026** (Inhalt zuletzt inhaltlich geprüft und aktualisiert; letzte Code-Änderung war
+07.09.2026, Commit `04d0c4c`). Dieses Dokument ist für eine andere KI (oder eine spätere Sitzung von mir)
+gedacht, die dieses Projekt ohne Rückfragen weiterführen soll. Lies es komplett, bevor du irgendetwas
+änderst.
 
-> **Was sich am 06.09.2026 geändert hat — bitte zuerst lesen.**
+> **Was sich am 07.09.2026 abends zuletzt geändert hat — bitte zuerst lesen.**
+> Die Übungsfotos aus Abschnitt 7.2 A (unten) sind **wieder komplett raus**, aus beiden Dateien.
+> Emilio, wörtlich: „Die Bilder sind Katastrophe." Die Muskelkarte (Abschnitt 7.2 B) ist jetzt das
+> **einzige** visuelle Element je Übung — vergrößert, direkt unter dem Titel. Dadurch sind die Dateien
+> radikal kleiner geworden: Kundenseite von ~1,9 MB auf **~174 KB**, Werkzeug von ~1,87 MB auf
+> **~140 KB**. Lies **Abschnitt 7 komplett neu** — es wurde unten aktualisiert, aber die Kurzfassung:
+> **kein neuer Zeichenversuch starten**, die Muskelkarte ist der aktuelle, akzeptierte Endstand.
+> Es gibt noch eine offene Frage dazu — Abschnitt 8, Punkt 2.
+>
+> Seit diesem Commit gab es **keine weitere Code-Änderung** (Git-Log geprüft am 14.09.2026, Arbeitsbaum
+> sauber, keine ungespeicherten Änderungen). Rechenkern-Abgleich heute erneut laufen lassen: 12.800
+> Profile, 0 Abweichungen — Abschnitt 5 stimmt weiterhin. `PAY`-Bezahllinks sind weiterhin **alle drei
+> leer** (Demo-Modus aktiv). GitHub Pages ist live (beide Adressen liefern HTTP 200, Stand 14.09.2026).
+>
+> **Was davor am 06.–07.09.2026 geändert wurde:**
 > Es gibt jetzt **genau eine Kundenseite**. Die Trainer-Datei war bisher heimlich eine zweite:
 > Sie begrüßte mit einem Türwähler („Zwei Seiten, ein System") und enthielt die komplette
 > Mitgliederstrecke samt eigener Schein-Zahlung ein zweites Mal. Dieser Kundenweg ist **entfernt**
@@ -58,9 +74,9 @@ fitness-trainer-system/
 ├── UEBERGABE.md                    ← dieses Dokument
 ├── STRATEGIE_2026-08-01.md         ← ursprüngliche Markt-/Produktstrategie (63 KB, historisch)
 └── prototype/
-    ├── formkurve-mitglied-einstieg.html   ← DIE KUNDENSEITE (aktuell, ~1,8 MB)
+    ├── formkurve-mitglied-einstieg.html   ← DIE KUNDENSEITE (aktuell, ~174 KB — seit 07.09. ohne Fotos)
     │                                        die einzige Seite, die ein Mitglied je sieht
-    ├── formkurve-komplett.html            ← INNENWERKZEUG für Kadri (aktuell, ~1,9 MB)
+    ├── formkurve-komplett.html            ← INNENWERKZEUG für Kadri (aktuell, ~140 KB — seit 07.09. ohne Fotos)
     │                                        enthält seit 06.09.2026 KEINEN Kundenweg mehr
     ├── formcheck-prototyp.html            ← alt, nicht mehr pflegen
     ├── formkurve-demo.html                ← alt, nicht mehr pflegen
@@ -289,7 +305,13 @@ Prüfskripte: `check-tftt.js` (4.608 Profile, TF/TT-Invarianten), `check-macros.
 
 ---
 
-## 7. Übungssystem: Fotos + Muskelkarte (wichtigster Abschnitt für Grafik-Arbeit)
+## 7. Übungssystem: Muskelkarte (wichtigster Abschnitt für Grafik-Arbeit)
+
+**Aktueller Endstand seit 07.09.2026: Die Muskelkarte ist das einzige visuelle Element je Übung.**
+Fotos wurden ausprobiert und wieder verworfen (7.2). Kein Foto, keine gezeichnete Bewegungsfigur —
+nur die anatomische Muskelkarte, direkt unter dem Übungstitel, darunter die Textanleitung (Cues +
+Warnhinweis). **Nicht erneut versuchen, hier ein Foto oder eine gezeichnete Figur einzubauen, ohne
+Emilio vorher explizit zu fragen** — beides wurde bereits versucht und verworfen (7.1 bzw. 7.2 A).
 
 ### 7.1 Die Vorgeschichte, die du NICHT wiederholen sollst
 
@@ -299,28 +321,32 @@ Rand-hinter-Füllung-Trick). Jeder Schritt war objektiv besser als der vorige. D
 Gliederpuppe. Emilios Urteil, mehrfach: „sieht scheiße aus" / „sieht furchtbar aus" — **berechtigt**.
 
 **Lehre: Versuche nicht, einen Menschen oder eine Muskelkarte selbst mit SVG-Pfaden zu zeichnen.**
-Das SVG-Zeichensystem existiert noch im Code als Rückfallebene (`drawBody()`, `POSE`-Tabelle mit
-19 Bewegungen), aber es wird **nicht mehr für die Anzeige benutzt** — siehe 7.2.
 
-### 7.2 Was tatsächlich funktioniert hat — zwei externe, lizenzfreie Quellen
+Dieses gescheiterte SVG-Zeichensystem existiert **weiterhin als toter Code** in beiden Dateien
+(`limb`, `cap`, `drawBody`, `poseAt`, `renderFig`, `playAnim`, `figure`, `ghostFig`, die `a`/`b`/`far`-
+Gelenkkoordinaten in `POSE`) — bewusst nicht entfernt, um beim großen Umbau vom 07.09. das Risiko klein
+zu halten. Es wird **seit 07.09.2026 nirgends mehr aufgerufen, außer an einer Stelle** (siehe unten,
+„Offene Ausnahme"). Wenn du aufräumst: `POSE.cue`/`POSE.warn` werden noch gebraucht (Textanleitung),
+der Rest der `POSE`-Einträge (Gelenkkoordinaten) ist tot.
 
-**A) Echte Übungsfotos** — Quelle: `github.com/yuhonas/free-exercise-db`
-(**Unlicense / Public Domain**, 873 Übungen, je Start-/Endfoto).
-- 34 deutsche Übungsnamen **von Hand** auf Datensatz-IDs gemappt (automatische Namenssuche lag mehrfach
-  fachlich falsch, z. B. „Schulterdrücken Maschine" → „Calf-Machine Shoulder Shrug").
-- 66 Bilder geladen, mit ffmpeg auf 420 px Breite verkleinert (`-vf scale=420:-2 -q:v 6`), als Base64
-  eingebettet in `var EXIMG={...}` (vor `var POSE=`).
-- Anzeige: `.exPhoto` mit zwei übereinanderliegenden `<img>`; `playAnim()` setzt
-  `exImg1.style.opacity = st.t` (Bewegungsphase) und den Text von `#exTag` zwischen „Start"/„Endposition".
-- **Rechtlicher Vorbehalt an Emilio kommuniziert:** Die Sammlung erklärt sich als Public Domain, die
-  Fotos wirken aber professionell aufgenommen — nicht unabhängig prüfbar, ob der Fotograf wirklich
-  freigegeben hat. Für Vorführungen unkritisch, **vor kommerzieller Nutzung klären**. Alternative:
-  `wrkout.xyz` (kommerziell lizenziert, 2.500+ Übungen, 10.000+ Bilder mit eingefärbter Muskulatur,
-  3.500+ Videos — exakt Emilios ursprüngliche Referenz-Optik).
+### 7.2 Die zwei externen Quellen, die ausprobiert wurden
 
-**B) Echte Muskelkarte** — Quelle: `github.com/HichamELBSI/react-native-body-highlighter`
-(**MIT-Lizenz**, Copyright © 2022 ELABBASSI Hicham; gefunden über dessen Fork
-`eslamelfateh/react-native-body-parts-anatomy`, der die Herkunft in `THIRD_PARTY_NOTICES.md` offenlegte).
+**A) Echte Übungsfotos — ausprobiert, dann komplett wieder entfernt (07.09.2026).**
+Quelle war `github.com/yuhonas/free-exercise-db` (Unlicense/Public Domain, 873 Übungen, je Start-/
+Endfoto), 34 deutsche Namen von Hand auf Datensatz-IDs gemappt, 66 Bilder als Base64 eingebettet
+(`var EXIMG={...}`). Funktionierte technisch einwandfrei, sah aber im Ergebnis schlecht aus:
+**fremde Personen in beliebigen, stilistisch nicht zum Studio passenden Fitnessstudios.** Emilio,
+wörtlich: „Die Bilder sind Katastrophe." Komplett entfernt — `EXIMG`, `.exPhoto`, `.phRow`, `.exLeg`
+und alle zugehörigen CSS-Regeln existieren **nicht mehr** im Code. **Nicht wieder einbauen, ohne
+vorher zu fragen** — das war kein technisches Problem, sondern eine bewusste Geschmacksentscheidung
+von Emilio. Falls doch wieder Fotos gewünscht sind, war die genannte Alternative `wrkout.xyz`
+(kommerziell lizenziert, 2.500+ Übungen, 10.000+ Bilder mit eingefärbter Muskulatur, 3.500+ Videos)
+noch nie ausprobiert — das ist die einzige noch offene Fotoquelle, keine der beiden bisherigen.
+
+**B) Echte Muskelkarte — der aktuelle, alleinige visuelle Anker.**
+Quelle: `github.com/HichamELBSI/react-native-body-highlighter` (**MIT-Lizenz**, Copyright © 2022
+ELABBASSI Hicham; gefunden über dessen Fork `eslamelfateh/react-native-body-parts-anatomy`, der die
+Herkunft in `THIRD_PARTY_NOTICES.md` offenlegte).
 - Anatomisch korrekte SVG-Körperkontur, Vorder- und Rückansicht **liegen im Quellmaterial bereits
   nebeneinander** (viewBox effektiv `0 0 1448 1460`; vorne x 0–724, hinten x 724–1448 — kein Verschieben
   nötig).
@@ -333,12 +359,23 @@ Das SVG-Zeichensystem existiert noch im Code als Rückfallebene (`drawBody()`, `
   Bewegungs-Keys, nicht je der 34 Übungsnamen).
 - **Lizenzhinweis steht als Kommentar im Code beider Dateien** (MIT verlangt das) — nicht entfernen.
 - Farbtoken: `--figSkin`, `--figInk`, `--figPrim`, `--figSec`, `--figLbl`.
+- Seit 07.09.2026 vergrößert dargestellt (`max-height` von 290 px auf 380 px) — jetzt der einzige
+  Blickfang der Übungsansicht, nicht mehr nur eine Ergänzung neben einem Foto.
 
-### 7.3 Qualität, aktuell
+### 7.3 Offene Ausnahme: der Druckausdruck nutzt noch die alte gezeichnete Figur
 
-Beide Apps: 20/20 Übungszeilen mit Foto **und** Muskelkarte **und** mindestens einer eingefärbten
-Muskelregion, 0 Fehler (Prüfskript-Ergebnis). Das ist der aktuelle Qualitätsstand — anatomisch korrekte
-Silhouette, echte Fotos, keine Handzeichnung mehr sichtbar für den Nutzer.
+`figPair()` in `formkurve-komplett.html` (nur beim PDF-Export/Ausdruck des Kadri-Dossiers sichtbar,
+**nicht** in der laufenden App) verwendet weiterhin die gezeichnete Bewegungsfigur aus 7.1 — bewusst
+beim Umbau vom 07.09. nicht angefasst, weil Emilios Kritik sich auf die App-Ansicht bezog, nicht auf
+den Ausdruck. **Ungeklärt, ob das dieselbe Behandlung bekommen soll** (auch hier auf reine Muskelkarte
+umstellen, oder ganz anders lösen) — siehe Abschnitt 8, Punkt 2. Nicht von dir allein entscheiden.
+
+### 7.4 Qualität, aktuell
+
+Beide Apps: 20/20 Übungszeilen mit Muskelkarte und mindestens einer eingefärbten Muskelregion, 0 Fehler
+(Prüfskript-Ergebnis vor der Foto-Entfernung; die Muskelkarten-Logik selbst wurde beim Umbau nicht
+verändert, nur die Fotos daneben entfernt). Getestet mit headless Edge bei 430 px und 390 px Breite,
+kompletter Kaufweg bis zur Übungsansicht, keine Fehler.
 
 ---
 
@@ -346,7 +383,11 @@ Silhouette, echte Fotos, keine Handzeichnung mehr sichtbar für den Nutzer.
 
 **Rechtlich/organisatorisch — blockieren echten Betrieb, nicht die Demo:**
 1. Schriftliche Erlaubnis vom Studio-Chef für Kadri (Vorbedingung für alles Weitere)
-2. Bildrechte der Übungsfotos klären, oder wrkout.xyz-Lizenz besorgen
+2. ~~Bildrechte der Übungsfotos klären~~ **gegenstandslos seit 07.09.2026** — die Fotos wurden komplett
+   entfernt (Abschnitt 7.2 A), keine Bildrechte mehr im Spiel. Offen ist stattdessen eine andere Frage,
+   rein gestalterisch: Soll `figPair()` im Druckdossier (Abschnitt 7.3) auch auf die reine Muskelkarte
+   umgestellt werden, oder bleibt der Ausdruck bei der alten gezeichneten Figur? Emilio fragen, nicht
+   selbst entscheiden — seine Kritik galt bisher nur der App-Ansicht.
 3. Kadris echte Trainingszeiten (aktuell Platzhalter im `TIMES`-Objekt)
 4. Datenschutzhinweis fehlt (Gesundheitsdaten: Gewicht, Alter, Ziel werden abgefragt)
 5. HappyFit-Markennutzung braucht explizite Studio-Zustimmung für den Echtbetrieb (aktuell als
