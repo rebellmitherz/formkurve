@@ -256,6 +256,7 @@
   .slot[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#0B0A07;
     border-color:transparent;font-weight:850;transform:scale(1.06);box-shadow:0 4px 14px -4px var(--goldGlow)}
   .slot:disabled{opacity:.18;cursor:not-allowed}
+  .slot.taken{opacity:.4;text-decoration:line-through;cursor:not-allowed}
   .pk{display:flex;align-items:center;gap:.8rem;background:rgba(255,255,255,.035);border:1px solid var(--edge);
     border-radius:15px;padding:.8rem .9rem;animation:rise .5s var(--ease) backwards}
   .pkd{width:42px;height:42px;border-radius:13px;background:var(--goldDim);color:var(--gold2);flex:none;
@@ -412,6 +413,17 @@
       <div class="dock">
         <button class="btn rise" style="animation-delay:.44s" onclick="startChat()">Check starten</button>
         <button class="btn ghost rise" style="animation-delay:.52s;margin-top:.5rem" onclick="showOffer(true)">Nur eine Stunde buchen</button>
+        <p class="lede rise" style="animation-delay:.58s;font-size:.72rem;color:var(--ink3);text-align:center;margin-top:.7rem">
+          Deine Angaben bleiben in deinem Browser — kein Konto, kein Server, keine Weitergabe an Dritte.
+          <span id="privToggle" style="text-decoration:underline;cursor:pointer" onclick="togglePriv()">Mehr dazu</span>
+        </p>
+        <p class="lede" id="privMore" style="display:none;font-size:.7rem;color:var(--ink3);text-align:left;margin-top:.5rem;line-height:1.5;background:var(--panel2,rgba(0,0,0,.03));border-radius:10px;padding:.7rem .8rem">
+          Für den Formcheck fragen wir Ziel, Trainingstage, Größe, Gewicht und Alter ab — nur um deinen Plan zu
+          berechnen. Diese Angaben werden nirgendwo gespeichert oder hochgeladen; sie existieren ausschließlich
+          in diesem Browser-Tab und sind weg, sobald du ihn schließt. Erst wenn du selbst einen Termin bestätigst
+          und auf den WhatsApp-Knopf tippst, gehen Name und gewählte Zeiten an Kadri direkt per WhatsApp — sonst
+          an niemanden. Bezahlungen laufen über Stripe; deine Zahlungsdaten sieht diese Seite nie.
+        </p>
       </div>
     </section>
 
@@ -530,7 +542,7 @@
       </div>
       <div class="dock">
         <button class="btn" id="bookBtn" disabled onclick="toPay()">Weiter zur Zahlung</button>
-        <button class="btn ghost" style="margin-top:.5rem" onclick="showOffer(OFFDIRECT)">Zurück</button>
+        <button class="btn ghost" style="margin-top:.5rem" onclick="abandonBooking()">Zurück</button>
       </div>
     </section>
 
@@ -667,8 +679,27 @@
 <div class="veil" id="veil" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script>
 (function(){
+  /* Firebase/Firestore: verhindert, dass zwei Kunden denselben Einzeltermin
+     (Personal Training/Begleitservice) buchen. Eigenes, von allen anderen
+     Rebellsystem-Projekten getrenntes Firebase-Projekt "formkurve", damit
+     nichts mit anderen Business-Tools vermischt wird. Nur für Einzeltermine
+     (bookGrid) aktiv — die wöchentliche Kleingruppen-Zeit des 8-Wochen-
+     Programms (weekGrid) ist eine dauerhafte Vereinbarung, kein Einzeldatum,
+     und bleibt bewusst ohne Kollisionsprüfung. */
+  firebase.initializeApp({
+    apiKey: "AIzaSyB748tl3xE5Z9P4aO_kylaxwzAISGb6l_k",
+    authDomain: "formkurve-2a920.firebaseapp.com",
+    projectId: "formkurve-2a920",
+    storageBucket: "formkurve-2a920.firebasestorage.app",
+    messagingSenderId: "483274795839",
+    appId: "1:483274795839:web:f81c811d9389eba1e6018a"
+  });
+  var db = firebase.firestore();
+
   var P={name:'',goal:null,sex:null,age:34,cm:170,kg:78,days:null,exp:null,blocker:null};
   var R=null,DAYS=null,SLOTS=[],FOOD=null,foodDay='TT',animTimer=null;
   var TRAINER='Kadri B.',STUDIO='HappyFit Dillingen';
@@ -1585,6 +1616,11 @@
   }
   function fill(s){return s.replace('{name}',P.name||'')}
   window.startChat=function(){ go('v-chat'); $('chat').innerHTML=''; $('ans').innerHTML=''; qi=0; step(); };
+  window.togglePriv=function(){
+    var open=$('privMore').style.display!=='none';
+    $('privMore').style.display=open?'none':'block';
+    $('privToggle').textContent=open?'Mehr dazu':'Weniger anzeigen';
+  };
   function step(){
     if(qi>=Q.length){ runAnalysis(); return; }
     var it=Q[qi], lines=(it.say||[]).slice();
@@ -1845,6 +1881,55 @@
     3:['08:00','09:00','10:00'],4:['08:00','09:00','10:00'],5:['','',''],6:['','','']};
   var SCHED={cap:0,grid:'weekGrid',list:'pickedList',btn:'schedBtn',group:true};
 
+  /* Nächstes Kalenderdatum für einen Wochentag (d: 0=Mo..6=So), immer in der
+     Zukunft (heute zählt nicht mehr, um keine schon verstrichene Uhrzeit
+     "heute 08:00" anzubieten). Nur für Einzeltermine gebraucht — die
+     Kleingruppen-Zeit des Programms hat kein Einzeldatum. */
+  function nextDateForWeekday(d){
+    var jsTarget=(d+1)%7; /* JS: 0=So..6=Sa, unser d: 0=Mo..6=So */
+    var now=new Date(), diff=(jsTarget-now.getDay()+7)%7;
+    if(diff===0) diff=7;
+    var dt=new Date(now.getFullYear(),now.getMonth(),now.getDate()+diff);
+    return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2);
+  }
+  function slotDocId(d,t){ return nextDateForWeekday(d)+'_'+t; }
+  /* Atomar prüfen+reservieren, damit zwei gleichzeitige Klicks nicht beide
+     durchkommen. Bei Netzwerkfehlern lieber durchlassen als den Kunden ohne
+     ersichtlichen Grund zu blockieren — Kadri sieht Dubletten notfalls in
+     WhatsApp. */
+  function reserveSlot(d,t){
+    var ref=db.collection('bookings').doc(slotDocId(d,t));
+    return db.runTransaction(function(tx){
+      return tx.get(ref).then(function(snap){
+        if(snap.exists) throw new Error('taken');
+        tx.set(ref,{d:d,t:t,date:nextDateForWeekday(d),createdAt:Date.now()});
+      });
+    }).then(function(){ return true; }).catch(function(e){
+      if(e&&e.message==='taken') return false;
+      console.error('reserveSlot',e); return true;
+    });
+  }
+  function releaseSlot(d,t){
+    db.collection('bookings').doc(slotDocId(d,t)).delete().catch(function(){});
+  }
+  /* Beim Öffnen des Rasters schon belegte Einzeltermine ausgrauen, bevor
+     überhaupt draufgetippt wird. */
+  function markTakenSlots(){
+    if(SCHED.grid!=='bookGrid') return;
+    var ids=[], map={};
+    document.querySelectorAll('#bookGrid .slot[data-d]').forEach(function(el){
+      var id=slotDocId(+el.dataset.d,el.dataset.t); ids.push(id); map[id]=el;
+    });
+    if(!ids.length) return;
+    db.collection('bookings').where(firebase.firestore.FieldPath.documentId(),'in',ids).get()
+      .then(function(qs){
+        qs.forEach(function(doc){
+          var el=map[doc.id];
+          if(el){ el.disabled=true; el.classList.add('taken'); }
+        });
+      }).catch(function(e){ console.error('markTakenSlots',e); });
+  }
+
   function drawGrid(){
     var g='';
     for(var d=0;d<7;d++){
@@ -1855,7 +1940,7 @@
       });
       g+='</div>';
     }
-    $(SCHED.grid).innerHTML=g; renderPicked();
+    $(SCHED.grid).innerHTML=g; renderPicked(); markTakenSlots();
   }
   function buildSchedule(){
     SCHED={cap:P.days,grid:'weekGrid',list:'pickedList',btn:'schedBtn',group:true};
@@ -1900,18 +1985,41 @@
   };
   window.pickSlot=function(el){
     var on=el.getAttribute('aria-pressed')==='true';
-    if(on){ el.setAttribute('aria-pressed','false');
-      SLOTS=SLOTS.filter(function(s){return !(s.d==el.dataset.d&&s.t===el.dataset.t)});
-    } else {
-      if(SLOTS.length>=SCHED.cap){
-        toast(SCHED.cap===1?'Mehr als einen Termin brauchst du dafür nicht':'Du hast schon '+SCHED.cap+' Termine gewählt');
+    var d=+el.dataset.d, t=el.dataset.t, isBooking=(SCHED.grid==='bookGrid');
+    if(on){
+      el.setAttribute('aria-pressed','false');
+      SLOTS=SLOTS.filter(function(s){return !(s.d==d&&s.t===t)});
+      renderPicked();
+      if(isBooking) releaseSlot(d,t);
+      return;
+    }
+    if(SLOTS.length>=SCHED.cap){
+      toast(SCHED.cap===1?'Mehr als einen Termin brauchst du dafür nicht':'Du hast schon '+SCHED.cap+' Termine gewählt');
+      return;
+    }
+    if(!isBooking){
+      el.setAttribute('aria-pressed','true');
+      SLOTS.push({d:d,t:t});
+      SLOTS.sort(function(a,b){return a.d-b.d||a.t.localeCompare(b.t)});
+      renderPicked();
+      return;
+    }
+    /* Einzeltermin: erst bei Firestore reservieren (atomar), erst bei Erfolg
+       in der Oberfläche auswählen — verhindert, dass zwei Kunden denselben
+       Termin gleichzeitig buchen. */
+    el.disabled=true;
+    reserveSlot(d,t).then(function(ok){
+      if(!ok){
+        el.classList.add('taken');
+        toast('Dieser Termin wurde gerade eben vergeben — wähl einen anderen.');
         return;
       }
+      el.disabled=false;
       el.setAttribute('aria-pressed','true');
-      SLOTS.push({d:+el.dataset.d,t:el.dataset.t});
+      SLOTS.push({d:d,t:t});
       SLOTS.sort(function(a,b){return a.d-b.d||a.t.localeCompare(b.t)});
-    }
-    renderPicked();
+      renderPicked();
+    });
   };
   function renderPicked(){
     var full=(SLOTS.length===SCHED.cap);
@@ -1930,6 +2038,14 @@
   }
   window.confirmSchedule=function(){ renderPay(); go('v-pay'); };
   window.toPay=function(){ renderPay(); go('v-pay'); };
+  /* Bricht der Kunde die Einzelterminbuchung ab, muss die Reservierung wieder
+     frei werden — sonst bleibt der Slot für alle anderen blockiert, obwohl
+     nie bezahlt wurde. */
+  window.abandonBooking=function(){
+    if(SCHED.grid==='bookGrid') SLOTS.forEach(function(s){ releaseSlot(s.d,s.t); });
+    SLOTS=[];
+    showOffer(OFFDIRECT);
+  };
 
   /* ============ ZAHLUNG ============ */
   function renderPay(){
